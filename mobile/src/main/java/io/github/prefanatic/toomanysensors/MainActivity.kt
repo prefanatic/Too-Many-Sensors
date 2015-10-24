@@ -11,6 +11,8 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import butterknife.bindView
 import com.google.android.gms.wearable.Node
+import com.jakewharton.rxbinding.view.clicks
+import com.jakewharton.rxbinding.widget.itemSelections
 import edu.uri.egr.hermeswear.HermesWearable
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
@@ -33,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     val mSelectedSensors = ArrayList<Int>()
     val mLifecycleSubscription = CompositeSubscription()
 
+    var mSelectedNode = -1
     var mIsActive = false
     var mSpinnerAdapter: ArrayAdapter<String>? = null
     var mSensorAdapter: SensorAdapter? = null
@@ -51,8 +54,28 @@ class MainActivity : AppCompatActivity() {
         mSensorList.adapter = mSensorAdapter
         mSensorList.layoutManager = LinearLayoutManager(this)
 
+        if (savedInstanceState == null) {
+            HermesWearable.Node.nodes
+                    .subscribe { nodeReceived(it) }
+        }
+
+        mSpinner.itemSelections()
+                .filter { it != -1 && it != mSelectedNode }
+                .subscribe {
+                    mSelectedNode = it
+                    askWearableForSensorList(getNodeIdFromAdapter(it)!!)
+                }
+
+        mFab.clicks()
+                .map { getNodeIdFromAdapter(mSelectedNode) }
+                .subscribe {
+                    if (mIsActive) sendStopRequest(it!!) else sendStartRequest(it!!)
+                }
+
         subscribeToDispatch()
     }
+
+    private fun getNodeIdFromAdapter(i: Int) = mNodeMap[mNodeList[i]]
 
     private fun sendStartRequest(id: String) {
         val selectedSensors = mSensorAdapter?.getSelected() ?: return
@@ -150,6 +173,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         mIsActive = savedInstanceState?.getBoolean(STATE_ACTIVE) ?: false
+        mSelectedNode = savedInstanceState?.getInt(STATE_NODE_SELECTED) ?: -1
 
         // Populate the node map.
         val nodeNames = savedInstanceState?.getStringArray(STATE_NODE_NAMES)
@@ -161,6 +185,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             mSpinnerAdapter?.notifyDataSetChanged()
+
+            if (mSelectedNode != -1)
+                mSpinner.setSelection(mSelectedNode)
         }
 
         // Populate the sensor map.
@@ -194,6 +221,9 @@ class MainActivity : AppCompatActivity() {
 
         // Save the selected sensor.
         outState?.putIntegerArrayList(STATE_SENSOR_SELECTED, mSensorAdapter?.getSelected())
+
+        // Save the selected node
+        outState?.putInt(STATE_NODE_SELECTED, mSelectedNode)
 
         super.onSaveInstanceState(outState)
     }

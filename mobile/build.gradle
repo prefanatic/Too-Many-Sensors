@@ -30,8 +30,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
 
-    compile 'com.google.android.gms:play-services:8.1.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile 'com.jakewharton.rxbinding:rxbinding-kotlin:0.3.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:0.3.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-design-kotlin:0.3.0'
 
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     debugCompile('com.github.prefanatic.hermes:hermes-core:0.3.6@aar') {

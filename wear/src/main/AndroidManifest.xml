@@ -1,11 +1,22 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="io.github.prefanatic.toomanysensors">
+<manifest
+    package="io.github.prefanatic.toomanysensors"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-feature android:name="android.hardware.type.watch"/>
-    <application android:allowBackup="true"
-                 android:label="@string/app_name"
-                 android:icon="@mipmap/ic_launcher"
-                 android:supportsRtl="true"
-                 android:theme="@android:style/Theme.DeviceDefault">
+    <application
+        android:name=".Application"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.DeviceDefault">
+
+        <service android:name=".SensorService">
+            <intent-filter>
+                <action android:name="hermes.intent.action.WEARABLE_DISPATCH"/>
+                <category android:name="message.received"/>
+            </intent-filter>
+        </service>
 
     </application>
 
