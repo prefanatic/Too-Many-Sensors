@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import butterknife.bindView
+import com.jakewharton.rxbinding.view.clicks
 import java.util.*
 
 class SensorAdapter : RecyclerView.Adapter<SensorAdapter.ViewHolder>() {
@@ -49,11 +50,11 @@ class SensorAdapter : RecyclerView.Adapter<SensorAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = sensorList.size
 
-    class ViewHolder : RecyclerView.ViewHolder {
+    inner class ViewHolder : RecyclerView.ViewHolder {
         val checkBox by bindView<CheckBox>(R.id.checkbox)
 
         constructor(itemView: View?) : super(itemView) {
-
+            checkBox.clicks().subscribe { enabledMap.put(checkBox.tag as Int, checkBox.isChecked) }
         }
     }
 }

@@ -7,13 +7,18 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
+import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.ProgressBar
 import android.widget.Spinner
 import butterknife.bindView
 import com.google.android.gms.wearable.Node
 import com.jakewharton.rxbinding.view.clicks
+import com.jakewharton.rxbinding.widget.RxProgressBar
 import com.jakewharton.rxbinding.widget.itemSelections
 import edu.uri.egr.hermeswear.HermesWearable
+import rx.Subscription
+import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import java.io.DataInputStream
@@ -26,8 +31,10 @@ import kotlin.test.todo
 class MainActivity : AppCompatActivity() {
     val mToolbar by bindView<Toolbar>(R.id.toolbar)
     val mFab by bindView<FloatingActionButton>(R.id.fab)
+    val mProgressBar by bindView<ProgressBar>(R.id.progress_bar)
     val mSpinner by bindView<Spinner>(R.id.node_spinner)
     val mSensorList by bindView<RecyclerView>(R.id.sensor_list)
+    val mDataList by bindView<RecyclerView>(R.id.data_list)
 
     val mNodeList = ArrayList<String>()
     val mNodeMap = HashMap<String, String>()
@@ -39,6 +46,9 @@ class MainActivity : AppCompatActivity() {
     var mIsActive = false
     var mSpinnerAdapter: ArrayAdapter<String>? = null
     var mSensorAdapter: SensorAdapter? = null
+    var mDataAdapter: SensorDataAdapter? = null
+    var mSensorListSubscription: Subscription? = null
+    var mSensorDataSubscription: Subscription? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,9 +64,22 @@ class MainActivity : AppCompatActivity() {
         mSensorList.adapter = mSensorAdapter
         mSensorList.layoutManager = LinearLayoutManager(this)
 
+        mDataAdapter = SensorDataAdapter(this)
+        mDataList.adapter = mDataAdapter
+        mDataList.itemAnimator = null
+        mDataList.layoutManager = LinearLayoutManager(this)
+
         if (savedInstanceState == null) {
             HermesWearable.Node.nodes
                     .subscribe { nodeReceived(it) }
+        }
+
+        if (mIsActive) {
+            mDataList.visibility = View.VISIBLE
+            mSensorList.visibility = View.GONE
+        } else {
+            mDataList.visibility = View.GONE
+            mSensorList.visibility = View.VISIBLE
         }
 
         mSpinner.itemSelections()
@@ -100,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         val inputStream = DataInputStream(stream)
 
         try {
-            for (i in 0..inputStream.readInt())
+            for (i in 0..inputStream.readInt() - 1)
                 mSensorMap.put(inputStream.readInt(), inputStream.readUTF())
         } catch (e: IOException) {
             Timber.e(e, "Failed to read sensor list.")
@@ -108,15 +131,17 @@ class MainActivity : AppCompatActivity() {
 
         runOnUiThread {
             mSensorMap.forEach { mSensorAdapter?.addSensor(WearableSensor(it.value, it.key)) }
+            mProgressBar.simpleHide()
         }
+
+        mSensorListSubscription?.unsubscribe()
     }
 
     private fun askWearableForSensorList(id: String) {
         mSensorMap.clear()
         mSensorAdapter?.clear()
 
-        todo { "We need to unsubscribe this subscription!" }
-        val subscription = HermesWearable.getChannelOpened()
+        mSensorListSubscription = HermesWearable.getChannelOpened()
                 .filter { it.channel.path.equals(PATH_TRANSFER_SENSOR_LIST) }
                 .flatMap { HermesWearable.Channel.getInputStream(it.channel) }
                 .subscribe { readSensorList(it) }
@@ -141,19 +166,43 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUiForActive() {
-        if (mIsActive)
+        if (mIsActive) {
             mFab.setImageResource(R.drawable.ic_stop_24dp)
-        else
+            mSensorList.simpleHide()
+            mDataList.simpleShow()
+        } else {
+            mSensorList.simpleShow()
+            mDataList.simpleHide()
             mFab.setImageResource(R.drawable.ic_play_arrow_24dp)
+        }
+    }
+
+    private fun updateUiWithSensorData(sensorData: SensorData) {
+        mDataAdapter?.updateSensorData(sensorData)
+    }
+
+    private fun updateDataListWithSelectedSensors() {
+        val selectedList = mSensorAdapter?.getSelected()
+        val produced = ArrayList<WearableSensor>()
+
+        selectedList?.forEach {
+            produced.add(WearableSensor(mSensorMap[it]!!, it))
+        }
+
+        mDataAdapter?.setSensors(produced)
     }
 
     private fun handleDataEnd() {
         mIsActive = false
+        mSensorDataSubscription?.unsubscribe()
         updateUiForActive()
     }
 
     private fun handleDataStart() {
         mIsActive = true
+        mSensorDataSubscription = SensorDataBus.asObservable().observeOn(AndroidSchedulers.mainThread()).subscribe { updateUiWithSensorData(it) }
+
+        updateDataListWithSelectedSensors()
         updateUiForActive()
     }
 
@@ -169,6 +218,11 @@ class MainActivity : AppCompatActivity() {
         mNodeList.remove(node.displayName)
 
         mSpinnerAdapter?.notifyDataSetChanged()
+    }
+
+    override fun onDestroy() {
+        mLifecycleSubscription.unsubscribe()
+        super.onDestroy()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {

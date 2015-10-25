@@ -74,25 +74,21 @@ class SensorService : Service() {
                 val maximumReport = buffer.int
                 val sensors = IntArray(buffer.int)
 
-                for (i in 0..sensors.size)
+                for (i in 0..sensors.size - 1)
                     sensors[i] = buffer.int
 
                 HermesWearable.Channel.openOutputStream(messageEvent.sourceNodeId, PATH_TRANSFER_DATA)
-                        .doOnError { stopSelf() }
+                        .doOnError {
+                            Timber.e(it, "Failed to open output stream.")
+                            stopSelf()
+                        }
                         .subscribe {
                             mOutputStream = it
                             sensors.forEach { observeSensor(it, samplingRate, maximumReport) }
                         }
             }
             PATH_STOP -> {
-                mSubscriptions.unsubscribe()
-
-                try {
-                    mOutputStream?.close()
-                } catch (e: IOException) {
-                    Timber.e(e, "Failed to close output stream.")
-                }
-
+                clean()
                 stopSelf()
             }
             PATH_REQUEST_SENSORS -> HermesWearable.Channel.openOutputStream(messageEvent.sourceNodeId, PATH_TRANSFER_SENSOR_LIST).subscribe { sendSensors(it) }
@@ -100,6 +96,21 @@ class SensorService : Service() {
         }
 
         return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        clean()
+        super.onDestroy()
+    }
+
+    private fun clean() {
+        if (!mSubscriptions.isUnsubscribed)
+            mSubscriptions.unsubscribe()
+
+        if (mOutputStream != null) {
+            try { mOutputStream?.close() } catch (e: IOException) {}
+            mOutputStream = null
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {

@@ -28,11 +28,11 @@ public class WearableReceiverService : IntentService("WearableReceiverService") 
                 val time = data.long
                 val values = FloatArray(data.int)
 
-                for (i in 1..values.size) {
+                for (i in 0..values.size - 1) {
                     values[i] = data.float
                 }
 
-                Timber.d("Sensor $sensor - x:${values[0]}")
+                SensorDataBus.post(SensorData(sensor, time, values))
             }
         } catch (e: IOException) {
             Timber.e(e, "Failed to read sensor data.")
@@ -50,7 +50,7 @@ public class WearableReceiverService : IntentService("WearableReceiverService") 
         if (intent == null) return
 
         val event = intent.getParcelableExtra<ChannelEvent>(Hermes.EXTRA_OBJECT)
-        if (event.channel.path.equals(PATH_REQUEST_SENSORS))
+        if (event.channel.path.equals(PATH_TRANSFER_DATA))
             handleChannelOpened(event.channel)
     }
 }
