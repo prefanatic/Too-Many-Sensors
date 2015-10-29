@@ -1,4 +1,4 @@
-package io.github.prefanatic.toomanysensors
+package io.github.prefanatic.toomanysensors.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
@@ -11,12 +11,16 @@ import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import io.github.prefanatic.toomanysensors.R
+import io.github.prefanatic.toomanysensors.data.SensorData
+import io.github.prefanatic.toomanysensors.data.WearableSensor
 import timber.log.Timber
 import java.util.*
 
 class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataAdapter.ViewHolder>() {
     public val sensorList = ArrayList<WearableSensor>()
     private val chartDataMap = HashMap<Int, BarData>()
+    private val maximumValueMap = HashMap<Int, Float>()
     private var recyclerView: RecyclerView? = null
 
     public fun setSensors(sensors: ArrayList<WearableSensor>) {
@@ -34,6 +38,7 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
             val data = chartDataMap[sensorInListIndex]
             val dataSet = data!!.dataSets[0]
 
+            maximumValueMap.put(sensorInListIndex, sensorData.values.max()!! + 10)
             sensorData.values.forEachIndexed { i, value ->
                 dataSet.yVals[i].`val` = value
             }
@@ -71,9 +76,9 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
         val data = sensorList[position]
 
         if (holder?.name?.text!!.equals(data.name) && holder?.chart?.data != null) {
+
+            holder?.chart?.axisLeft?.axisMaxValue = maximumValueMap[position]
             holder?.chart?.notifyDataSetChanged()
-
-
             holder?.chart?.invalidate()
             //holder?.chart?.animateY(100)
         } else {
@@ -106,6 +111,7 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
             chart.xAxis.setDrawGridLines(false)
             chart.setDescription("")
             chart.setDrawGridBackground(false)
+            chart.axisRight.isEnabled = false
         }
     }
 }

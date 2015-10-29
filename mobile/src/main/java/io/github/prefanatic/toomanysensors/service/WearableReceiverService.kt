@@ -1,4 +1,4 @@
-package io.github.prefanatic.toomanysensors
+package io.github.prefanatic.toomanysensors.service
 
 import android.app.IntentService
 import android.content.Intent
@@ -6,6 +6,11 @@ import com.google.android.gms.wearable.Channel
 import edu.uri.egr.hermes.Hermes
 import edu.uri.egr.hermeswear.HermesWearable
 import edu.uri.egr.hermeswear.event.ChannelEvent
+import io.github.prefanatic.toomanysensors.extension.BUFFER_SIZE
+import io.github.prefanatic.toomanysensors.extension.PATH_TRANSFER_DATA
+import io.github.prefanatic.toomanysensors.data.SensorData
+import io.github.prefanatic.toomanysensors.manager.SensorDataBus
+import rx.Observable
 import rx.schedulers.Schedulers
 import timber.log.Timber
 import java.io.IOException
@@ -42,8 +47,7 @@ public class WearableReceiverService : IntentService("WearableReceiverService") 
     private fun handleChannelOpened(channel: Channel) {
         HermesWearable.Channel.getInputStream(channel)
                 .subscribeOn(Schedulers.io())
-                .subscribe { stream -> handleInputStream(stream) }
-    }
+                .subscribe { stream -> handleInputStream(stream) }    }
 
 
     override fun onHandleIntent(intent: Intent?) {

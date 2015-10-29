@@ -1,4 +1,4 @@
-package io.github.prefanatic.toomanysensors
+package io.github.prefanatic.toomanysensors.adapter
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import butterknife.bindView
 import com.jakewharton.rxbinding.view.clicks
+import io.github.prefanatic.toomanysensors.R
+import io.github.prefanatic.toomanysensors.data.WearableSensor
 import java.util.*
 
 class SensorAdapter : RecyclerView.Adapter<SensorAdapter.ViewHolder>() {

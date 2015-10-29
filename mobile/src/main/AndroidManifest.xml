@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name="ui.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".WearableReceiverService">
+        <service android:name=".service.WearableReceiverService">
             <intent-filter>
                 <action android:name="hermes.intent.action.WEARABLE_DISPATCH"/>
                 <category android:name="channel.opened"/>

@@ -1,4 +1,4 @@
-package io.github.prefanatic.toomanysensors
+package ui
 
 import android.hardware.SensorManager
 import android.os.Bundle
@@ -11,12 +11,19 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import android.widget.Spinner
+import android.widget.TextView
 import butterknife.bindView
 import com.google.android.gms.wearable.Node
 import com.jakewharton.rxbinding.view.clicks
-import com.jakewharton.rxbinding.widget.RxProgressBar
 import com.jakewharton.rxbinding.widget.itemSelections
 import edu.uri.egr.hermeswear.HermesWearable
+import io.github.prefanatic.toomanysensors.R
+import io.github.prefanatic.toomanysensors.adapter.SensorAdapter
+import io.github.prefanatic.toomanysensors.adapter.SensorDataAdapter
+import io.github.prefanatic.toomanysensors.data.SensorData
+import io.github.prefanatic.toomanysensors.data.WearableSensor
+import io.github.prefanatic.toomanysensors.extension.*
+import io.github.prefanatic.toomanysensors.manager.SensorDataBus
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
@@ -26,7 +33,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.*
-import kotlin.test.todo
 
 class MainActivity : AppCompatActivity() {
     val mToolbar by bindView<Toolbar>(R.id.toolbar)
@@ -35,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     val mSpinner by bindView<Spinner>(R.id.node_spinner)
     val mSensorList by bindView<RecyclerView>(R.id.sensor_list)
     val mDataList by bindView<RecyclerView>(R.id.data_list)
+    val mErrorText by bindView<TextView>(R.id.error_text);
 
     val mNodeList = ArrayList<String>()
     val mNodeMap = HashMap<String, String>()
@@ -71,7 +78,8 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             HermesWearable.Node.nodes
-                    .subscribe { nodeReceived(it) }
+                    .doOnCompleted { nodeCompleted() }.
+                    subscribe { nodeReceived(it) }
         }
 
         if (mIsActive) {
@@ -96,6 +104,12 @@ class MainActivity : AppCompatActivity() {
                 }
 
         subscribeToDispatch()
+    }
+
+    private fun setError(error: String) {
+        mErrorText.text = error
+        mErrorText.simpleShow()
+        mProgressBar.simpleHide()
     }
 
     private fun getNodeIdFromAdapter(i: Int) = mNodeMap[mNodeList[i]]
@@ -204,6 +218,12 @@ class MainActivity : AppCompatActivity() {
 
         updateDataListWithSelectedSensors()
         updateUiForActive()
+    }
+
+    private fun nodeCompleted() {
+        if (mNodeList.size == 0) {
+            setError("No nodes detected.")
+        }
     }
 
     private fun nodeReceived(node: Node) {

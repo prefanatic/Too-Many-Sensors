@@ -1,4 +1,4 @@
-package io.github.prefanatic.toomanysensors
+package io.github.prefanatic.toomanysensors.extension
 
 val PATH_START = "teletremor/start"
 val PATH_STOP = "teletremor/stop"

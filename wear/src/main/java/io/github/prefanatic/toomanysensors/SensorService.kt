@@ -1,12 +1,15 @@
 package io.github.prefanatic.toomanysensors
 
 import android.app.Service
+import android.app.Service.SENSOR_SERVICE
 import android.app.Service.START_NOT_STICKY
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.IBinder
 import android.os.Parcelable
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationManagerCompat
 import com.google.android.gms.wearable.MessageEvent
 import edu.uri.egr.hermes.Hermes
 import edu.uri.egr.hermeswear.HermesWearable
@@ -20,6 +23,21 @@ import java.nio.ByteBuffer
 class SensorService : Service() {
     val mSubscriptions = CompositeSubscription()
     var mOutputStream: OutputStream? = null
+
+    private fun cancelNotification() {
+        NotificationManagerCompat.from(this).cancel(100);
+    }
+
+    private fun generateNotification() {
+        val builder = NotificationCompat.Builder(this)
+
+        builder.setContentTitle("Too Many Sensors")
+                .setContentText("Observing sensor data")
+                .setOngoing(true)
+
+
+        NotificationManagerCompat.from(this).notify(100, builder.build())
+    }
 
     private fun observeSensor(sensor: Int, samplingRate: Int, maximumReport: Int) {
         val subscription = Hermes.Sensor.observeSensor(sensor, samplingRate, maximumReport)
@@ -86,6 +104,8 @@ class SensorService : Service() {
                             mOutputStream = it
                             sensors.forEach { observeSensor(it, samplingRate, maximumReport) }
                         }
+
+                generateNotification()
             }
             PATH_STOP -> {
                 clean()
@@ -104,11 +124,16 @@ class SensorService : Service() {
     }
 
     private fun clean() {
+        cancelNotification()
+
         if (!mSubscriptions.isUnsubscribed)
             mSubscriptions.unsubscribe()
 
         if (mOutputStream != null) {
-            try { mOutputStream?.close() } catch (e: IOException) {}
+            try {
+                mOutputStream?.close()
+            } catch (e: IOException) {
+            }
             mOutputStream = null
         }
     }

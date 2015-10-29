@@ -1,5 +1,6 @@
-package io.github.prefanatic.toomanysensors
+package io.github.prefanatic.toomanysensors.manager
 
+import io.github.prefanatic.toomanysensors.data.SensorData
 import rx.Observable
 import rx.subjects.PublishSubject
 import rx.subjects.SerializedSubject

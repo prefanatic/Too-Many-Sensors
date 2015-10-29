@@ -31,15 +31,24 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/data_list"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/error_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawableTop="@drawable/ic_warning_24dp"
         android:visibility="gone"
-        android:layout_height="match_parent"/>
+        tools:text="There is an error."/>
 
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:indeterminate="true"/>
 
 
 </FrameLayout>
