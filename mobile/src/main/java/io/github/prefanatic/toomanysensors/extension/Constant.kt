@@ -19,3 +19,6 @@ val STATE_SENSOR_TYPES = "state.sensor.types"
 val STATE_SENSOR_SELECTED = "state.sensor.selected"
 
 val STATE_NAV = "state.navigation"
+
+val PREF_SAMPLING_RATE = "pref.sampling.rate"
+val PREF_SAMPLING_RATE_UNIT = "pref.sampling.rate.unit"

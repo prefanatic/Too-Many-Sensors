@@ -6,7 +6,14 @@
     <string name="nav_settings">Settings</string>
 
     <string name="sampling_rate">Sampling Rate</string>
-    <string name="sampling_rate_summary">Will attempt to sample at $1%d Hz</string>
+    <string name="sampling_rate_summary">Will attempt to sample at $1%d Hz\nThere are no guarantees on a per-sensor basis for meeting this sampling rate.</string>
+    <string-array name="sampling_rate_entries">
+        <item>Hz</item>
+        <item>nanoseconds</item>
+        <item>microseconds</item>
+        <item>milliseconds</item>
+        <item>seconds</item>
+    </string-array>
     <string name="maximum_report_rate">Maximum Reporting Rate</string>
     <string name="maximum_report_rate_summary">Will hold samples until a period of %1$d ??? has passed</string>
     <string name="logging">Data Logging</string>

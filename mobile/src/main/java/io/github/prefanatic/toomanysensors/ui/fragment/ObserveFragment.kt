@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
-import butterknife.bindView
 import com.google.android.gms.wearable.Node
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.itemSelections
@@ -210,13 +209,9 @@ class ObserveFragment : Fragment() {
     }
 
     private fun readSensorList(stream: InputStream) {
-        val inputStream = DataInputStream(stream)
-
-        try {
-            for (i in 0..inputStream.readInt() - 1)
-                mSensorMap.put(inputStream.readInt(), inputStream.readUTF())
-        } catch (e: IOException) {
-            Timber.e(e, "Failed to read sensor list.")
+        DataInputStream(stream).use {
+            for (i in 1..it.readInt())
+                mSensorMap.put(it.readInt(), it.readUTF())
         }
 
         runOnUiThread {

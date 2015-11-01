@@ -22,9 +22,9 @@ public class WearableReceiverService : IntentService("WearableReceiverService") 
         var bytesRead: Int
         val buffer = ByteArray(BUFFER_SIZE)
 
-        try {
+        stream.use {
             while (true) {
-                bytesRead = stream.read(buffer, 0, BUFFER_SIZE)
+                bytesRead = it.read(buffer, 0, BUFFER_SIZE)
                 if (bytesRead == -1)
                     break
 
@@ -39,8 +39,6 @@ public class WearableReceiverService : IntentService("WearableReceiverService") 
 
                 SensorDataBus.post(SensorData(sensor, time, values))
             }
-        } catch (e: IOException) {
-            Timber.e(e, "Failed to read sensor data.")
         }
     }
 

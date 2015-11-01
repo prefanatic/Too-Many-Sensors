@@ -1,24 +1,21 @@
 package io.github.prefanatic.toomanysensors.ui
 
-import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
-import butterknife.bindView
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.extension.STATE_NAV
+import io.github.prefanatic.toomanysensors.extension.bindView
 import io.github.prefanatic.toomanysensors.extension.setStatusBarColor
 import io.github.prefanatic.toomanysensors.extension.showFragment
 import io.github.prefanatic.toomanysensors.ui.fragment.ObserveFragment
+import io.github.prefanatic.toomanysensors.ui.fragment.SettingsFragment
 
-class NavigationActivity: AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     val toolbar by bindView<Toolbar>(R.id.toolbar)
     val drawerLayout by bindView<DrawerLayout>(R.id.drawer_layout)
     val navView by bindView<NavigationView>(R.id.navigation_view)
@@ -47,7 +44,8 @@ class NavigationActivity: AppCompatActivity(), NavigationView.OnNavigationItemSe
         when (id) {
             R.id.observe -> showFragment(R.id.content, ::ObserveFragment)
 
-            R.id.settings -> startActivity(Intent(this, SettingsActivity::class.java))
+        //R.id.settings -> startActivity(Intent(this, SettingsActivity::class.java))
+            R.id.settings -> showFragment(R.id.content, ::SettingsFragment)
         }
     }
 

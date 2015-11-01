@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.bindView
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -14,13 +13,14 @@ import com.github.mikephil.charting.data.BarEntry
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.data.SensorData
 import io.github.prefanatic.toomanysensors.data.WearableSensor
-import timber.log.Timber
+import io.github.prefanatic.toomanysensors.extension.bindView
 import java.util.*
 
 class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataAdapter.ViewHolder>() {
     public val sensorList = ArrayList<WearableSensor>()
     private val chartDataMap = HashMap<Int, BarData>()
     private val maximumValueMap = HashMap<Int, Float>()
+    private val minimumValueMap = HashMap<Int, Float>()
     private var recyclerView: RecyclerView? = null
 
     public fun setSensors(sensors: ArrayList<WearableSensor>) {
@@ -39,6 +39,7 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
             val dataSet = data!!.dataSets[0]
 
             maximumValueMap.put(sensorInListIndex, sensorData.values.max()!! + 10)
+            minimumValueMap.put(sensorInListIndex, sensorData.values.min()!! - 10)
             sensorData.values.forEachIndexed { i, value ->
                 dataSet.yVals[i].`val` = value
             }
@@ -77,6 +78,7 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
         if (holder?.name?.text!!.equals(data.name) && holder?.chart?.data != null) {
             holder?.chart?.apply {
                 axisLeft?.axisMaxValue = maximumValueMap[position]
+                axisLeft?.axisMinValue = minimumValueMap[position]
                 notifyDataSetChanged()
                 invalidate()
             }

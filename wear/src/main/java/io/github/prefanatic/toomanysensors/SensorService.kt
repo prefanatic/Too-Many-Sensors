@@ -66,17 +66,13 @@ class SensorService : Service() {
         val manager = getSystemService(SENSOR_SERVICE) as SensorManager
         val sensorList = manager.getSensorList(Sensor.TYPE_ALL)
 
-        try {
-            outputStream.writeInt(sensorList.size)
+        outputStream.use {
+            it.writeInt(sensorList.size)
 
             sensorList.forEach {
                 outputStream.writeInt(it.type)
                 outputStream.writeUTF(it.name)
             }
-
-            outputStream.close()
-        } catch (e: IOException) {
-            Timber.e(e, "Failed to send sensor list.")
         }
 
         stopSelf()
