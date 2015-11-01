@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="pref_sampling_rate"
+        android:title="@string/sampling_rate"
+        android:summary="@string/sampling_rate_summary"/>
+
+    <Preference
+        android:key="pref_maximum_report_rate"
+        android:title="@string/maximum_report_rate"
+        android:summary="@string/maximum_report_rate_summary"/>
+
+    <CheckBoxPreference
+        android:key="pref_logging"
+        android:title="@string/logging"
+        android:summaryOn="@string/logging_summary_on"
+        android:summaryOff="@string/logging_summary_off"/>
+
+</PreferenceScreen>

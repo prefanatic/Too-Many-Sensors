@@ -60,7 +60,6 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
         val xValues = ArrayList<String>(valueCount)
         val yValues = ArrayList<BarEntry>(valueCount)
 
-        Timber.d("We have %d values.", valueCount)
         for (i in 0..valueCount - 1) {
             xValues.add(i.toString())
             yValues.add(BarEntry(0.toFloat(), i))
@@ -76,11 +75,11 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
         val data = sensorList[position]
 
         if (holder?.name?.text!!.equals(data.name) && holder?.chart?.data != null) {
-
-            holder?.chart?.axisLeft?.axisMaxValue = maximumValueMap[position]
-            holder?.chart?.notifyDataSetChanged()
-            holder?.chart?.invalidate()
-            //holder?.chart?.animateY(100)
+            holder?.chart?.apply {
+                axisLeft?.axisMaxValue = maximumValueMap[position]
+                notifyDataSetChanged()
+                invalidate()
+            }
         } else {
             holder?.name?.text = data.name
             holder?.chart?.data = chartDataMap[position]
@@ -105,13 +104,16 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
         val chart by bindView<BarChart>(R.id.chart)
 
         constructor(itemView: View?) : super(itemView) {
-            chart.setTouchEnabled(false)
-            chart.isDragEnabled = false
-            chart.legend.isEnabled = false
-            chart.xAxis.setDrawGridLines(false)
-            chart.setDescription("")
-            chart.setDrawGridBackground(false)
-            chart.axisRight.isEnabled = false
+            with(chart) {
+                setTouchEnabled(false)
+                isDragEnabled = false
+                setDescription("")
+                setDrawGridBackground(false)
+
+                legend.isEnabled = false
+                xAxis.setDrawGridLines(false)
+                axisRight.isEnabled = false
+            }
         }
     }
 }

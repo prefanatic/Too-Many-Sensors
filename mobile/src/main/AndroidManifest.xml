@@ -10,14 +10,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity
-            android:name="ui.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity android:name=".ui.NavigationActivity"
+                  android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ui.SettingsActivity"/>
 
         <service android:name=".service.WearableReceiverService">
             <intent-filter>

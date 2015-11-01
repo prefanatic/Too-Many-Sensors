@@ -17,3 +17,5 @@ val STATE_NODE_SELECTED = "state.node.selected"
 val STATE_SENSOR_NAMES = "state.sensor.names"
 val STATE_SENSOR_TYPES = "state.sensor.types"
 val STATE_SENSOR_SELECTED = "state.sensor.selected"
+
+val STATE_NAV = "state.navigation"

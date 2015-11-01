@@ -1,13 +1,15 @@
-package ui
+package io.github.prefanatic.toomanysensors.ui.fragment
 
+import android.app.Fragment
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import android.widget.Spinner
@@ -34,7 +36,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class ObserveFragment : Fragment() {
     val mToolbar by bindView<Toolbar>(R.id.toolbar)
     val mFab by bindView<FloatingActionButton>(R.id.fab)
     val mProgressBar by bindView<ProgressBar>(R.id.progress_bar)
@@ -57,29 +59,29 @@ class MainActivity : AppCompatActivity() {
     var mSensorListSubscription: Subscription? = null
     var mSensorDataSubscription: Subscription? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(mToolbar)
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View?
+            = inflater?.inflate(R.layout.fragment_observe, container, false)
 
-        mSpinnerAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mNodeList)
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        mSpinnerAdapter = ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, mNodeList)
         mSpinnerAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         mSpinner.adapter = mSpinnerAdapter
 
         mSensorAdapter = SensorAdapter()
         mSensorAdapter?.setSelected(mSelectedSensors)
         mSensorList.adapter = mSensorAdapter
-        mSensorList.layoutManager = LinearLayoutManager(this)
+        mSensorList.layoutManager = LinearLayoutManager(activity)
 
-        mDataAdapter = SensorDataAdapter(this)
+        mDataAdapter = SensorDataAdapter(activity)
         mDataList.adapter = mDataAdapter
         mDataList.itemAnimator = null
-        mDataList.layoutManager = LinearLayoutManager(this)
+        mDataList.layoutManager = LinearLayoutManager(activity)
 
         if (savedInstanceState == null) {
-            HermesWearable.Node.nodes
-                    .doOnCompleted { nodeCompleted() }.
-                    subscribe { nodeReceived(it) }
+            refreshNodeList()
         }
 
         if (mIsActive) {
@@ -98,12 +100,86 @@ class MainActivity : AppCompatActivity() {
                 }
 
         mFab.clicks()
-                .map { getNodeIdFromAdapter(mSelectedNode) }
                 .subscribe {
-                    if (mIsActive) sendStopRequest(it!!) else sendStartRequest(it!!)
+                    if (mNodeList.size == 0) {
+                        refreshNodeList()
+                    } else {
+                        val node = getNodeIdFromAdapter(mSelectedNode)!!
+                        if (mIsActive) sendStopRequest(node) else sendStartRequest(node)
+                    }
                 }
 
         subscribeToDispatch()
+    }
+
+    override fun onDestroy() {
+        mLifecycleSubscription.unsubscribe()
+        super.onDestroy()
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        mIsActive = savedInstanceState?.getBoolean(STATE_ACTIVE) ?: false
+        mSelectedNode = savedInstanceState?.getInt(STATE_NODE_SELECTED) ?: -1
+
+        // Populate the node map.
+        val nodeNames = savedInstanceState?.getStringArray(STATE_NODE_NAMES)
+        val nodeIds = savedInstanceState?.getStringArrayList(STATE_NODE_ID)
+        if (nodeNames != null && nodeIds != null) {
+            for (i in 0..nodeNames.size) {
+                mNodeMap.put(nodeNames[i], nodeIds[i])
+                mNodeList.add(nodeNames[i])
+            }
+
+            mSpinnerAdapter?.notifyDataSetChanged()
+
+            if (mSelectedNode != -1)
+                mSpinner.setSelection(mSelectedNode)
+        }
+
+        // Populate the sensor map.
+        val sensorNames = savedInstanceState?.getStringArray(STATE_SENSOR_NAMES)
+        val sensorTypes = savedInstanceState?.getIntArray(STATE_SENSOR_TYPES)
+        if (sensorNames != null && sensorTypes != null && sensorNames.size != 0 && sensorTypes.size != 0) {
+            for (i in 0..sensorTypes.size) {
+                mSensorMap.put(sensorTypes[i], sensorNames[i])
+                mSensorAdapter?.addSensor(WearableSensor(sensorNames[i], sensorTypes[i]))
+            }
+        }
+
+        // Populate the selected sensors.
+        val selectedSensors = savedInstanceState?.getIntegerArrayList(STATE_SENSOR_SELECTED)
+        if (selectedSensors != null)
+            mSensorAdapter?.setSelected(selectedSensors)
+
+        super.onActivityCreated(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.apply {
+            putBoolean(STATE_ACTIVE, mIsActive)
+
+            // Save the node map.
+            putStringArray(STATE_NODE_NAMES, mNodeMap.keys.toTypedArray())
+            putStringArray(STATE_NODE_ID, mNodeMap.values.toTypedArray())
+
+            // Save the sensor map.
+            putIntArray(STATE_SENSOR_TYPES, mSensorMap.keys.toIntArray())
+            putStringArray(STATE_SENSOR_NAMES, mSensorMap.values.toTypedArray())
+
+            // Save the selected sensor.
+            putIntegerArrayList(STATE_SENSOR_SELECTED, mSensorAdapter?.getSelected())
+
+            // Save the selected node
+            putInt(STATE_NODE_SELECTED, mSelectedNode)
+        }
+
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun refreshNodeList() {
+        HermesWearable.Node.nodes
+                .doOnCompleted { nodeCompleted() }.
+                subscribe { nodeReceived(it) }
     }
 
     private fun setError(error: String) {
@@ -165,18 +241,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun subscribeToDispatch() {
-        mLifecycleSubscription.add(HermesWearable.getPeerConnected()
-                .filter { it.isNearby }
-                .subscribe { nodeReceived(it) })
-        mLifecycleSubscription.add(HermesWearable.getPeerDisconnected()
-                .filter { it.isNearby }
-                .subscribe { nodeRemoved(it) })
-        mLifecycleSubscription.add(HermesWearable.getChannelOpened()
-                .filter { it.channel.path.equals(PATH_TRANSFER_DATA) }
-                .subscribe { handleDataStart() })
-        mLifecycleSubscription.add(HermesWearable.getInputClosed()
-                .filter { it.channel.path.equals(PATH_TRANSFER_DATA) }
-                .subscribe { handleDataEnd() })
+        with(mLifecycleSubscription) {
+            add(HermesWearable.getPeerConnected()
+                    .filter { it.isNearby }
+                    .subscribe { nodeReceived(it) })
+
+            add(HermesWearable.getPeerDisconnected()
+                    .filter { it.isNearby }
+                    .subscribe { nodeRemoved(it) })
+
+            add(HermesWearable.getChannelOpened()
+                    .filter { it.channel.path.equals(PATH_TRANSFER_DATA) }
+                    .subscribe { handleDataStart() })
+
+            add(HermesWearable.getInputClosed()
+                    .filter { it.channel.path.equals(PATH_TRANSFER_DATA) }
+                    .subscribe { handleDataEnd() })
+        }
     }
 
     private fun updateUiForActive() {
@@ -222,11 +303,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun nodeCompleted() {
         if (mNodeList.size == 0) {
+            mSpinner.visibility = View.GONE
+            mFab.setImageResource(R.drawable.ic_refresh_24dp)
+
             setError("No nodes detected.")
         }
     }
 
     private fun nodeReceived(node: Node) {
+        if (mSelectedNode == -1)
+            mFab.setImageResource(R.drawable.ic_play_arrow_24dp)
+
         mNodeMap.put(node.displayName, node.id)
         mNodeList.add(node.displayName)
 
@@ -238,67 +325,5 @@ class MainActivity : AppCompatActivity() {
         mNodeList.remove(node.displayName)
 
         mSpinnerAdapter?.notifyDataSetChanged()
-    }
-
-    override fun onDestroy() {
-        mLifecycleSubscription.unsubscribe()
-        super.onDestroy()
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        mIsActive = savedInstanceState?.getBoolean(STATE_ACTIVE) ?: false
-        mSelectedNode = savedInstanceState?.getInt(STATE_NODE_SELECTED) ?: -1
-
-        // Populate the node map.
-        val nodeNames = savedInstanceState?.getStringArray(STATE_NODE_NAMES)
-        val nodeIds = savedInstanceState?.getStringArrayList(STATE_NODE_ID)
-        if (nodeNames != null && nodeIds != null) {
-            for (i in 0..nodeNames.size) {
-                mNodeMap.put(nodeNames[i], nodeIds[i])
-                mNodeList.add(nodeNames[i])
-            }
-
-            mSpinnerAdapter?.notifyDataSetChanged()
-
-            if (mSelectedNode != -1)
-                mSpinner.setSelection(mSelectedNode)
-        }
-
-        // Populate the sensor map.
-        val sensorNames = savedInstanceState?.getStringArray(STATE_SENSOR_NAMES)
-        val sensorTypes = savedInstanceState?.getIntArray(STATE_SENSOR_TYPES)
-        if (sensorNames != null && sensorTypes != null) {
-            for (i in 0..sensorTypes.size) {
-                mSensorMap.put(sensorTypes[i], sensorNames[i])
-                mSensorAdapter?.addSensor(WearableSensor(sensorNames[i], sensorTypes[i]))
-            }
-        }
-
-        // Populate the selected sensors.
-        val selectedSensors = savedInstanceState?.getIntegerArrayList(STATE_SENSOR_SELECTED)
-        if (selectedSensors != null)
-            mSensorAdapter?.setSelected(selectedSensors)
-
-        super.onRestoreInstanceState(savedInstanceState)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putBoolean(STATE_ACTIVE, mIsActive)
-
-        // Save the node map.
-        outState?.putStringArray(STATE_NODE_NAMES, mNodeMap.keys.toTypedArray())
-        outState?.putStringArray(STATE_NODE_ID, mNodeMap.values.toTypedArray())
-
-        // Save the sensor map.
-        outState?.putIntArray(STATE_SENSOR_TYPES, mSensorMap.keys.toIntArray())
-        outState?.putStringArray(STATE_SENSOR_NAMES, mSensorMap.values.toTypedArray())
-
-        // Save the selected sensor.
-        outState?.putIntegerArrayList(STATE_SENSOR_SELECTED, mSensorAdapter?.getSelected())
-
-        // Save the selected node
-        outState?.putInt(STATE_NODE_SELECTED, mSelectedNode)
-
-        super.onSaveInstanceState(outState)
     }
 }
