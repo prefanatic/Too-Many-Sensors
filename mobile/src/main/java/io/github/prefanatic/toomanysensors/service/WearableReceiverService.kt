@@ -37,6 +37,7 @@ public class WearableReceiverService : IntentService("WearableReceiverService") 
                     values[i] = data.float
                 }
 
+                // TODO We might overflow Rx depending on the speed of the phone - Implement backpressure helpers.
                 SensorDataBus.post(SensorData(sensor, time, values))
             }
         }
