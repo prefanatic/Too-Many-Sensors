@@ -18,4 +18,19 @@
         android:summaryOn="@string/logging_summary_on"
         android:summaryOff="@string/logging_summary_off"/>
 
+    <PreferenceCategory
+        android:title="@string/debug_category">
+
+        <Preference
+            android:title="@string/export_realm"
+            android:summary="@string/export_realm_summary"
+            android:key="pref_export_realm"/>
+
+        <Preference
+            android:title="@string/reset_realm"
+            android:summary="@string/reset_realm_summary"
+            android:key="pref_reset_realm"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

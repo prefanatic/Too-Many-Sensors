@@ -6,18 +6,25 @@ import com.google.android.gms.wearable.Channel
 import edu.uri.egr.hermes.Hermes
 import edu.uri.egr.hermeswear.HermesWearable
 import edu.uri.egr.hermeswear.event.ChannelEvent
+import io.github.prefanatic.toomanysensors.data.DataManager
+import io.github.prefanatic.toomanysensors.data.dto.SensorData
 import io.github.prefanatic.toomanysensors.extension.BUFFER_SIZE
 import io.github.prefanatic.toomanysensors.extension.PATH_TRANSFER_DATA
-import io.github.prefanatic.toomanysensors.data.SensorData
 import io.github.prefanatic.toomanysensors.manager.SensorDataBus
-import rx.Observable
+import rx.Subscription
 import rx.schedulers.Schedulers
 import timber.log.Timber
-import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
 
 public class WearableReceiverService : IntentService("WearableReceiverService") {
+    private var dataManager: DataManager
+    private var closeSubscription: Subscription? = null
+
+    init {
+        dataManager = DataManager.get()
+    }
+
     private fun handleInputStream(stream: InputStream) {
         var bytesRead: Int
         val buffer = ByteArray(BUFFER_SIZE)
@@ -37,17 +44,34 @@ public class WearableReceiverService : IntentService("WearableReceiverService") 
                     values[i] = data.float
                 }
 
+                val sensorData = SensorData(sensor, time, values)
+
+                dataManager.addData(sensorData)
+
                 // TODO We might overflow Rx depending on the speed of the phone - Implement backpressure helpers.
-                SensorDataBus.post(SensorData(sensor, time, values))
+                SensorDataBus.post(sensorData)
             }
         }
+
+        dataManager.endTransaction(this)
     }
 
     private fun handleChannelOpened(channel: Channel) {
-        HermesWearable.Channel.getInputStream(channel)
-                .subscribeOn(Schedulers.io())
-                .subscribe { stream -> handleInputStream(stream) }    }
+        dataManager.beginTransaction()
 
+        // Access our input stream - we can block here because this is already a separate thread from the UI.
+        val inputStream = HermesWearable.Channel.getInputStream(channel)
+                .toBlocking()
+                .first()
+
+        handleInputStream(inputStream)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        Timber.d("Destroying.")
+    }
 
     override fun onHandleIntent(intent: Intent?) {
         if (intent == null) return

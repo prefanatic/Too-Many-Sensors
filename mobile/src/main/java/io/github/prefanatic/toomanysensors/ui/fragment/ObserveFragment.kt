@@ -21,16 +21,15 @@ import edu.uri.egr.hermeswear.HermesWearable
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.adapter.SensorAdapter
 import io.github.prefanatic.toomanysensors.adapter.SensorDataAdapter
-import io.github.prefanatic.toomanysensors.data.SensorData
-import io.github.prefanatic.toomanysensors.data.WearableSensor
+import io.github.prefanatic.toomanysensors.data.DataManager
+import io.github.prefanatic.toomanysensors.data.dto.SensorData
+import io.github.prefanatic.toomanysensors.data.dto.WearableSensor
 import io.github.prefanatic.toomanysensors.extension.*
 import io.github.prefanatic.toomanysensors.manager.SensorDataBus
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
-import timber.log.Timber
 import java.io.DataInputStream
-import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.*
@@ -201,6 +200,8 @@ class ObserveFragment : Fragment() {
 
         HermesWearable.Message.sendMessage(id, PATH_START, buffer.array())
                 .subscribe { }
+
+        DataManager.get().setSensorIds(mSensorAdapter?.getSelected()!!.toIntArray())
     }
 
     private fun sendStopRequest(id: String) {

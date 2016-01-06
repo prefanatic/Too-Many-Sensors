@@ -11,8 +11,8 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import io.github.prefanatic.toomanysensors.R
-import io.github.prefanatic.toomanysensors.data.SensorData
-import io.github.prefanatic.toomanysensors.data.WearableSensor
+import io.github.prefanatic.toomanysensors.data.dto.SensorData
+import io.github.prefanatic.toomanysensors.data.dto.WearableSensor
 import io.github.prefanatic.toomanysensors.extension.bindView
 import java.util.*
 

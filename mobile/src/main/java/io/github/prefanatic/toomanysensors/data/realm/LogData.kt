@@ -5,10 +5,10 @@ import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 
 public open class LogData: RealmObject() {
-    public open var sensorId: Int? = null
-    public open var dateCollected: Long? = null
+    public open var sensorId: Int = -1
+    public open var dateCollected: Long = 0
     public open var lengthOfCollection: Long? = null
-    public open var category: String? = null
-    public open var notes: String? = null
-    public open var entries: RealmList<LogValue>? = null
+    public open var category: String = "Unknown"
+    public open var notes: String = ""
+    public open var entries: RealmList<LogValue> = RealmList()
 }

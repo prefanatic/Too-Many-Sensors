@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import com.jakewharton.rxbinding.view.clicks
 import io.github.prefanatic.toomanysensors.R
-import io.github.prefanatic.toomanysensors.data.WearableSensor
+import io.github.prefanatic.toomanysensors.data.dto.WearableSensor
 import io.github.prefanatic.toomanysensors.extension.bindView
 import java.util.*
 
