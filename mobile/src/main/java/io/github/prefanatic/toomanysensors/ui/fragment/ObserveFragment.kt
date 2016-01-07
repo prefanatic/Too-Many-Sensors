@@ -165,7 +165,7 @@ class ObserveFragment : Fragment() {
             putStringArray(STATE_SENSOR_NAMES, mSensorMap.values.toTypedArray())
 
             // Save the selected sensor.
-            putIntegerArrayList(STATE_SENSOR_SELECTED, mSensorAdapter?.getSelected())
+            putIntegerArrayList(STATE_SENSOR_SELECTED, mSensorAdapter?.getSelected()?.toArrayList())
 
             // Save the selected node
             putInt(STATE_NODE_SELECTED, mSelectedNode)
@@ -216,7 +216,9 @@ class ObserveFragment : Fragment() {
         }
 
         runOnUiThread {
-            mSensorMap.forEach { mSensorAdapter?.addSensor(WearableSensor(it.value, it.key)) }
+            mSensorMap.forEach { it ->
+                mSensorAdapter?.addSensor(WearableSensor(it.value, it.key))
+            }
             mProgressBar.simpleHide()
         }
 

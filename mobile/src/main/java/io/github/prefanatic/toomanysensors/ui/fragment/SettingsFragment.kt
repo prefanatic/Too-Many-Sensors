@@ -46,7 +46,7 @@ class SettingsFragment: PreferenceFragment() {
 
     private fun exportRealm(): Boolean {
         val realm = Realm.getInstance(context)
-        var file: File? = null
+        var file: File?
 
         try {
             file = File(context.externalCacheDir, "export.realm")

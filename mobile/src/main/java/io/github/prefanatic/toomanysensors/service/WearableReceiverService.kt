@@ -57,7 +57,7 @@ public class WearableReceiverService : IntentService("WearableReceiverService") 
     }
 
     private fun handleChannelOpened(channel: Channel) {
-        dataManager.beginTransaction()
+        dataManager.beginTransaction(this)
 
         // Access our input stream - we can block here because this is already a separate thread from the UI.
         val inputStream = HermesWearable.Channel.getInputStream(channel)

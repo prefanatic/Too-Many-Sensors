@@ -13,6 +13,7 @@ import io.github.prefanatic.toomanysensors.extension.bindView
 import io.github.prefanatic.toomanysensors.extension.setStatusBarColor
 import io.github.prefanatic.toomanysensors.extension.showFragment
 import io.github.prefanatic.toomanysensors.ui.fragment.ObserveFragment
+import io.github.prefanatic.toomanysensors.ui.fragment.RecallFragment
 import io.github.prefanatic.toomanysensors.ui.fragment.SettingsFragment
 
 class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -43,8 +44,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         when (id) {
             R.id.observe -> showFragment(R.id.content, ::ObserveFragment)
-
-        //R.id.settings -> startActivity(Intent(this, SettingsActivity::class.java))
+            R.id.recall -> showFragment(R.id.content,  ::RecallFragment)
             R.id.settings -> showFragment(R.id.content, ::SettingsFragment)
         }
     }

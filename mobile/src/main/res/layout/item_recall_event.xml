@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:foreground="?selectableItemBackground"
+                android:layout_height="?listPreferredItemHeight"
+                android:padding="8dp">
+
+    <TextView
+        android:id="@+id/event_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="My Record Event"/>
+
+    <TextView
+        android:id="@+id/event_recorded_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        tools:text="1/6/15 - 3:21 PM"/>
+
+</RelativeLayout>

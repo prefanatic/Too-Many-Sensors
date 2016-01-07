@@ -23,7 +23,7 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
     private val minimumValueMap = HashMap<Int, Float>()
     private var recyclerView: RecyclerView? = null
 
-    public fun setSensors(sensors: ArrayList<WearableSensor>) {
+    public fun setSensors(sensors: List<WearableSensor>) {
         sensorList.clear()
         chartDataMap.clear()
         sensors.forEach { sensorList.add(it) }

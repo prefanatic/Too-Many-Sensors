@@ -1,8 +1,10 @@
 package io.github.prefanatic.toomanysensors.data
 
 import android.content.Context
+import android.hardware.SensorManager
 import io.github.prefanatic.toomanysensors.data.dto.SensorData
 import io.github.prefanatic.toomanysensors.data.realm.LogData
+import io.github.prefanatic.toomanysensors.data.realm.LogEntry
 import io.github.prefanatic.toomanysensors.data.realm.LogValue
 import io.github.prefanatic.toomanysensors.data.realm.RealmFloatWrapper
 import io.realm.Realm
@@ -14,6 +16,7 @@ public class DataManager private constructor() {
     private val sensorMap: HashMap<Int, LogData>
     private var inTransaction: Boolean
     private var sensorIds: IntArray? = null
+    private var logEntry: LogEntry? = null
 
     init {
         sensorMap = HashMap();
@@ -49,19 +52,22 @@ public class DataManager private constructor() {
         this.sensorIds = sensorIds
     }
 
-    public fun beginTransaction() {
+    public fun beginTransaction(context: Context) {
         if (isInTransaction()) {
             throw RuntimeException("Attempting to start a transaction when we're already in one!")
         }
         if (sensorIds == null) {
             throw RuntimeException("No sensor IDs have been set to save in this transaction!")
         }
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+        logEntry = LogEntry()
+        logEntry?.dateCollected = System.currentTimeMillis()
 
         (sensorIds as IntArray).forEach {
             val data = LogData()
-
             data.sensorId = it
-            data.dateCollected = System.currentTimeMillis()
+            data.sensorName = sensorManager.getDefaultSensor(it).name
 
             sensorMap[it] = data
         }
@@ -76,11 +82,14 @@ public class DataManager private constructor() {
             val bgRealm = it
 
             Timber.d("Saving %d sensors.", sensorMap.entries.size)
-            sensorMap.forEach {
-                Timber.d("Saving sensor (%d) with %d values.", it.key, it.value.entries.size)
 
-                bgRealm.copyToRealm(it.value)
+            sensorMap.forEach { it ->
+                logEntry?.data?.add(it.value)
+                Timber.d("Saving sensor (%d) with %d values.", it.key, it.value.entries.size)
             }
+
+
+            bgRealm.copyToRealm(logEntry)
 
             sensorMap.clear()
             Timber.d("Transaction executed.")

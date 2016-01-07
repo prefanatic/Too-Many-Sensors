@@ -9,20 +9,25 @@ import com.jakewharton.rxbinding.view.clicks
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.data.dto.WearableSensor
 import io.github.prefanatic.toomanysensors.extension.bindView
+import timber.log.Timber
 import java.util.*
 
 class SensorAdapter : RecyclerView.Adapter<SensorAdapter.ViewHolder>() {
     public val sensorList = ArrayList<WearableSensor>()
     private val enabledMap = HashMap<Int, Boolean>()
 
-    public fun getSelected(): ArrayList<Int> {
+    public fun getSelected(): List<Int> {
         val filtered = enabledMap.filter { it.value }
 
         return filtered.keys.toArrayList()
     }
 
-    public fun setSelected(selected: ArrayList<Int>) {
-        selected.forEach { enabledMap.put(it, true) }
+    public fun setSelected(selected: List<Int>) {
+        selected.forEach {
+            Timber.d("%d", it)
+            enabledMap.put(it, true)
+        }
+
     }
 
     public fun addSensor(sensor: WearableSensor) {
