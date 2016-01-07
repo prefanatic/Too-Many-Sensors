@@ -15,10 +15,6 @@ public class Application : android.app.Application() {
                 .deleteRealmIfMigrationNeeded() // TODO: REMOVE THIS WHEN IN PRODUCTION!!!!!
                 .build()
 
-        (0..5).forEach {
-            Timber.e("PLEASE DONT FORGET ABOUT REALM MIGRATIONS!")
-        }
-
         Realm.getInstance(realmConfig).close()
 
         val config = Hermes.Config()
@@ -26,5 +22,10 @@ public class Application : android.app.Application() {
                 .enableDebug(BuildConfig.DEBUG)
 
         Hermes.init(this, config)
+
+        (0..5).forEach {
+            Timber.e("PLEASE DONT FORGET ABOUT REALM MIGRATIONS!")
+        }
+
     }
 }

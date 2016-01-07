@@ -11,16 +11,12 @@ import io.github.prefanatic.toomanysensors.extension.bindView
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RecallAdapter(val entries: List<LogEntry>) : RecyclerView.Adapter<RecallAdapter.ViewHolder>() {
+class RecallAdapter : ListAdapter<LogEntry, RecallAdapter.ViewHolder>() {
 
-    override fun getItemCount() = entries.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val entry = entries[position]
-
+    override fun onBindViewHolder(holder: ViewHolder, obj: LogEntry) {
         holder.apply {
-            name.text = entry.name
-            recordedAt.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(entry.dateCollected))
+            name.text = obj.name
+            recordedAt.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(obj.dateCollected))
         }
     }
 
