@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import java.util.*
 
-abstract class ListAdapter<O, T : RecyclerView.ViewHolder>(private val data: MutableList<O> = ArrayList()) : RecyclerView.Adapter<T>() {
+abstract class ListAdapter<O, T : RecyclerView.ViewHolder>(public val data: MutableList<O> = ArrayList()) : RecyclerView.Adapter<T>() {
     public fun add(o: O) {
         data.add(o)
         notifyItemInserted(data.size)

@@ -76,23 +76,25 @@ public class DataManager private constructor() {
     }
 
     public fun endTransaction(context: Context) {
-        val realm = Realm.getInstance(context)
+        logEntry?.lengthOfCollection = System.currentTimeMillis() - logEntry!!.dateCollected
 
-        realm.executeTransaction {
-            val bgRealm = it
+        Realm.getInstance(context).use {
+            it.executeTransaction {
+                val bgRealm = it
 
-            Timber.d("Saving %d sensors.", sensorMap.entries.size)
+                Timber.d("Saving %d sensors.", sensorMap.entries.size)
 
-            sensorMap.forEach { it ->
-                logEntry?.data?.add(it.value)
-                Timber.d("Saving sensor (%d) with %d values.", it.key, it.value.entries.size)
+                sensorMap.forEach { it ->
+                    logEntry?.data?.add(it.value)
+                    Timber.d("Saving sensor (%d) with %d values.", it.key, it.value.entries.size)
+                }
+
+
+                bgRealm.copyToRealm(logEntry)
+
+                sensorMap.clear()
+                Timber.d("Transaction executed.")
             }
-
-
-            bgRealm.copyToRealm(logEntry)
-
-            sensorMap.clear()
-            Timber.d("Transaction executed.")
         }
 
         inTransaction = false

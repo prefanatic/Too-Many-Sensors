@@ -175,9 +175,11 @@ class ObserveFragment : Fragment() {
     }
 
     private fun refreshNodeList() {
+        mProgressBar.simpleShow()
+
         HermesWearable.Node.nodes
-                .doOnCompleted { nodeCompleted() }.
-                subscribe { nodeReceived(it) }
+                .doOnCompleted { nodeCompleted() }
+                .subscribe { nodeReceived(it) }
     }
 
     private fun setError(error: String) {

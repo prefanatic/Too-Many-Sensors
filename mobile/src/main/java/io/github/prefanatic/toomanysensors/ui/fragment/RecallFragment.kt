@@ -1,6 +1,7 @@
 package io.github.prefanatic.toomanysensors.ui.fragment
 
 import android.app.Fragment
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -11,10 +12,14 @@ import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.adapter.RecallAdapter
 import io.github.prefanatic.toomanysensors.data.realm.LogEntry
 import io.github.prefanatic.toomanysensors.extension.bindView
+import io.github.prefanatic.toomanysensors.ui.LogEntryActivity
 import io.realm.Realm
+import rx.subscriptions.CompositeSubscription
+import timber.log.Timber
 
 class RecallFragment : Fragment() {
     val recycler by bindView<RecyclerView>(R.id.recycler)
+    val lifecycleSubscriptions = CompositeSubscription()
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View?
             = inflater?.inflate(R.layout.fragment_recall, container, false)
@@ -27,7 +32,23 @@ class RecallFragment : Fragment() {
         val list = realm.allObjects(LogEntry::class.java)
 
         // Populate the recycler with our adapter.
-        recycler.adapter = RecallAdapter(list)
+        val adapter = RecallAdapter(list)
+        recycler.adapter = adapter
         recycler.layoutManager = LinearLayoutManager(context)
+
+        // Listen to clicks.
+        lifecycleSubscriptions.add(
+                adapter.getClickObservable().subscribe {
+                    val obj = it.obj
+                    val intent = Intent(activity, LogEntryActivity::class.java)
+
+                    intent.apply {
+                        putExtra("timeStamp", obj.dateCollected)
+                        putExtra("length", obj.lengthOfCollection)
+                    }
+
+                    startActivity(intent)
+                }
+        )
     }
 }
