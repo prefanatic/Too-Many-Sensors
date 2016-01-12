@@ -27,11 +27,11 @@
     <string name="menu_edit">Edit</string>
     <string name="menu_export">Export</string>
     <string name="edit_name">Event Name</string>
-    <string name="edit_positive">OK</string>
+    <string name="edit_positive">Save</string>
     <string name="edit_neutral">Cancel</string>
     <string name="edit_title">Edit Entry</string>
     <string name="hint_category_name">Category Name</string>
-    <string name="category_positive">OK</string>
+    <string name="category_positive">Save</string>
     <string name="category_neutral">Cancel</string>
     <string name="category_title">Edit Category</string>
 </resources>
