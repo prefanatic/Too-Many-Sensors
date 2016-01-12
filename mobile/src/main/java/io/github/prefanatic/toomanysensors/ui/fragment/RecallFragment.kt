@@ -28,27 +28,34 @@ class RecallFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Load the LogEntry list we have from Realm.
-        val realm = Realm.getInstance(context)
-        val list = realm.allObjects(LogEntry::class.java)
+        Realm.getInstance(context).use {
+            val list = it.allObjects(LogEntry::class.java)
 
-        // Populate the recycler with our adapter.
-        val adapter = RecallAdapter(list)
-        recycler.adapter = adapter
-        recycler.layoutManager = LinearLayoutManager(context)
+            // Populate the recycler with our adapter.
+            val adapter = RecallAdapter(it.copyFromRealm(list))
+            recycler.adapter = adapter
+            recycler.layoutManager = LinearLayoutManager(context)
 
-        // Listen to clicks.
-        lifecycleSubscriptions.add(
-                adapter.getClickObservable().subscribe {
-                    val obj = it.obj
-                    val intent = Intent(activity, LogEntryActivity::class.java)
+            // Listen to clicks.
+            lifecycleSubscriptions.add(
+                    adapter.getClickObservable().subscribe {
+                        val obj = it.obj
+                        val intent = Intent(activity, LogEntryActivity::class.java)
 
-                    intent.apply {
-                        putExtra("timeStamp", obj.dateCollected)
-                        putExtra("length", obj.lengthOfCollection)
+                        intent.apply {
+                            putExtra("timeStamp", obj.dateCollected)
+                            putExtra("length", obj.lengthOfCollection)
+                        }
+
+                        startActivity(intent)
                     }
+            )
+        }
+    }
 
-                    startActivity(intent)
-                }
-        )
+    override fun onResume() {
+        super.onResume()
+
+
     }
 }

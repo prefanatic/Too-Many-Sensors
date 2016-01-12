@@ -17,7 +17,7 @@ class RecallAdapter(data: MutableList<LogEntry>) : ListAdapter<LogEntry, RecallA
     override fun onBindViewHolder(holder: ViewHolder, obj: LogEntry) {
         holder.apply {
             name.text = obj.name
-            recordedAt.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(obj.dateCollected))
+            recordedAt.text = SimpleDateFormat("h:mm a MM-dd-yy").format(Date(obj.dateCollected))
         }
     }
 

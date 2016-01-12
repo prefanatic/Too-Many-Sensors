@@ -24,4 +24,14 @@
     <string name="export_realm_summary">Exports the Realm database to a share intent.</string>
     <string name="reset_realm">Reset Realm</string>
     <string name="reset_realm_summary">Clears all data in the Realm database.</string>
+    <string name="menu_edit">Edit</string>
+    <string name="menu_export">Export</string>
+    <string name="edit_name">Event Name</string>
+    <string name="edit_positive">OK</string>
+    <string name="edit_neutral">Cancel</string>
+    <string name="edit_title">Edit Entry</string>
+    <string name="hint_category_name">Category Name</string>
+    <string name="category_positive">OK</string>
+    <string name="category_neutral">Cancel</string>
+    <string name="category_title">Edit Category</string>
 </resources>

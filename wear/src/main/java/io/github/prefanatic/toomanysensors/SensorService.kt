@@ -1,8 +1,6 @@
 package io.github.prefanatic.toomanysensors
 
 import android.app.Service
-import android.app.Service.SENSOR_SERVICE
-import android.app.Service.START_NOT_STICKY
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorManager
@@ -40,25 +38,30 @@ class SensorService : Service() {
     }
 
     private fun observeSensor(sensor: Int, samplingRate: Int, maximumReport: Int) {
-        val subscription = Hermes.Sensor.observeSensor(sensor, samplingRate, maximumReport)
-                .subscribe {
-                    val buffer = ByteBuffer.allocate(BUFFER_SIZE)
+        if (sensor == 1001) {
+            // Are we requesting audio??
 
-                    buffer.putInt(sensor)
-                    buffer.putLong(System.currentTimeMillis())
-                    buffer.putInt(it.values.size)
+        } else {
+            val subscription = Hermes.Sensor.observeSensor(sensor, samplingRate, maximumReport)
+                    .subscribe {
+                        val buffer = ByteBuffer.allocate(BUFFER_SIZE)
 
-                    it.values.forEach { buffer.putFloat(it) }
+                        buffer.putInt(sensor)
+                        buffer.putLong(System.currentTimeMillis())
+                        buffer.putInt(it.values.size)
 
-                    try {
-                        mOutputStream?.write(buffer.array())
-                    } catch (e: IOException) {
-                        Timber.e(e, "Failed to send sensor data.")
-                        // We probably don't want to stop self here, cause other sensors still may be workin fine.
+                        it.values.forEach { buffer.putFloat(it) }
+
+                        try {
+                            mOutputStream?.write(buffer.array())
+                        } catch (e: IOException) {
+                            Timber.e(e, "Failed to send sensor data.")
+                            // We probably don't want to stop self here, cause other sensors still may be workin fine.
+                        }
                     }
-                }
 
-        mSubscriptions.add(subscription)
+            mSubscriptions.add(subscription)
+        }
     }
 
     private fun sendSensors(stream: OutputStream) {
@@ -67,12 +70,16 @@ class SensorService : Service() {
         val sensorList = manager.getSensorList(Sensor.TYPE_ALL)
 
         outputStream.use {
-            it.writeInt(sensorList.size)
+            it.writeInt(sensorList.size + 1)
 
             sensorList.forEach {
                 outputStream.writeInt(it.type)
                 outputStream.writeUTF(it.name)
             }
+
+            // Tell them we do audio as well.
+            outputStream.writeInt(1001)
+            outputStream.writeUTF("Microphone")
         }
 
         stopSelf()

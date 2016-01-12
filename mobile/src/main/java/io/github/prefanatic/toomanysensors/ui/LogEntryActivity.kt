@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.widget.TextView
+import com.jakewharton.rxbinding.support.v7.widget.RxToolbar
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.data.realm.LogEntry
 import io.github.prefanatic.toomanysensors.extension.bindView
 import io.github.prefanatic.toomanysensors.extension.showFragment
+import io.github.prefanatic.toomanysensors.ui.dialog.LogEntryEditDialog
 import io.github.prefanatic.toomanysensors.ui.fragment.LogDataListFragment
 import io.realm.Realm
 import timber.log.Timber
@@ -23,6 +25,27 @@ class LogEntryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_log_entry)
+
+        toolbar.inflateMenu(R.menu.activity_log_entry)
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24dp)
+
+        RxToolbar.navigationClicks(toolbar).subscribe { onBackPressed() }
+        RxToolbar.itemClicks(toolbar).subscribe {
+            when (it.itemId) {
+                R.id.action_edit -> {
+                    if (logEntry != null) {
+                        val dialog = LogEntryEditDialog.newInstance(logEntry!!)
+                        dialog.getResultObservable().subscribe {
+                            logEntry = it
+                            populateInformation()
+                        }
+                        dialog.show(fragmentManager, "entryEdit")
+                    }
+                }
+                R.id.action_export -> {
+                }
+            }
+        }
 
         val timeStamp = intent.getLongExtra("timeStamp", -1L)
         val length = intent.getLongExtra("length", -1L)
@@ -41,18 +64,21 @@ class LogEntryActivity : AppCompatActivity() {
         }
 
         if (logEntry != null) {
-            val dateCollected = SimpleDateFormat("HH:mm MM/dd/yy").format(Date((logEntry as LogEntry).dateCollected))
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = (logEntry as LogEntry).lengthOfCollection
-
-            val lengthCollected = SimpleDateFormat("HH:mm:ss").format(cal.time)
-
-            dateOfCollectionText.text = "Recorded at %s".format(dateCollected)
-            lengthOfCollectionText.text = "Duration: %s".format(lengthCollected)
-            toolbar.title = (logEntry as LogEntry).name
-
+            populateInformation()
             showFragment(R.id.content, ::LogDataListFragment)
         }
+    }
+
+    private fun populateInformation() {
+        val dateCollected = SimpleDateFormat("h:mm a MM/dd/yy").format(Date((logEntry as LogEntry).dateCollected))
+        val cal = Calendar.getInstance()
+        cal.timeInMillis = (logEntry as LogEntry).lengthOfCollection
+
+        val lengthCollected = SimpleDateFormat("HH:mm:ss").format(cal.time)
+
+        dateOfCollectionText.text = "Recorded at %s".format(dateCollected)
+        lengthOfCollectionText.text = "Duration: %s".format(lengthCollected)
+        toolbar.title = (logEntry as LogEntry).name
     }
 
     override fun onBackPressed() {
