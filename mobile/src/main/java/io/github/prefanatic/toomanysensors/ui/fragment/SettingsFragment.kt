@@ -19,9 +19,7 @@ package io.github.prefanatic.toomanysensors.ui.fragment
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.preference.Preference
 import android.preference.PreferenceFragment
-import android.preference.PreferenceScreen
 import android.support.design.widget.Snackbar
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.data.EXPORT_REALM

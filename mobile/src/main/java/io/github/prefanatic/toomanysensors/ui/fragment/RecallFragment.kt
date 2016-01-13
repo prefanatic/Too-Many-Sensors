@@ -31,7 +31,6 @@ import io.github.prefanatic.toomanysensors.extension.bindView
 import io.github.prefanatic.toomanysensors.ui.LogEntryActivity
 import io.realm.Realm
 import rx.subscriptions.CompositeSubscription
-import timber.log.Timber
 
 class RecallFragment : Fragment() {
     val recycler by bindView<RecyclerView>(R.id.recycler)

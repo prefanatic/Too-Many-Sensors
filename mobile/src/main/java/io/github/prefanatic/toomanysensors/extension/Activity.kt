@@ -17,7 +17,6 @@
 package io.github.prefanatic.toomanysensors.extension
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Build
 
 /*

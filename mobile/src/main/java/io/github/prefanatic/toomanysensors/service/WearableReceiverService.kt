@@ -28,7 +28,6 @@ import io.github.prefanatic.toomanysensors.extension.BUFFER_SIZE
 import io.github.prefanatic.toomanysensors.extension.PATH_TRANSFER_DATA
 import io.github.prefanatic.toomanysensors.manager.SensorDataBus
 import rx.Subscription
-import rx.schedulers.Schedulers
 import timber.log.Timber
 import java.io.InputStream
 import java.nio.ByteBuffer

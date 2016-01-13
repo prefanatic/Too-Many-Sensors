@@ -20,7 +20,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.jakewharton.rxbinding.view.RxView
 import rx.Observable
-import rx.Subscription
 
 open class ObservableViewHolder : RecyclerView.ViewHolder {
     private val clickObservable: Observable<View>

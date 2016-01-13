@@ -24,7 +24,6 @@ import io.github.prefanatic.toomanysensors.data.realm.LogEntry
 import io.github.prefanatic.toomanysensors.data.realm.LogValue
 import io.github.prefanatic.toomanysensors.data.realm.RealmFloatWrapper
 import io.realm.Realm
-import io.realm.RealmList
 import timber.log.Timber
 import java.util.*
 
