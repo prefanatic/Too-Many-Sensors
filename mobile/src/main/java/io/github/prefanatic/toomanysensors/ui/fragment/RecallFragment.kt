@@ -43,13 +43,13 @@ class RecallFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Load the LogEntry list we have from Realm.
-        Realm.getInstance(context).use {
+        Realm.getInstance(activity).use {
             val list = it.allObjects(LogEntry::class.java)
 
             // Populate the recycler with our adapter.
             val adapter = RecallAdapter(it.copyFromRealm(list))
             recycler.adapter = adapter
-            recycler.layoutManager = LinearLayoutManager(context)
+            recycler.layoutManager = LinearLayoutManager(activity)
 
             // Listen to clicks.
             lifecycleSubscriptions.add(

@@ -46,7 +46,7 @@ class SettingsFragment: PreferenceFragment() {
     }
 
     private fun resetRealm(): Boolean {
-        val realm = Realm.getInstance(context)
+        val realm = Realm.getInstance(activity)
         val config = realm.configuration
         realm.close()
 
@@ -59,11 +59,11 @@ class SettingsFragment: PreferenceFragment() {
     }
 
     private fun exportRealm(): Boolean {
-        val realm = Realm.getInstance(context)
+        val realm = Realm.getInstance(activity)
         var file: File?
 
         try {
-            file = File(context.externalCacheDir, "export.realm")
+            file = File(activity.externalCacheDir, "export.realm")
             file.delete()
 
             realm.writeCopyTo(file)
