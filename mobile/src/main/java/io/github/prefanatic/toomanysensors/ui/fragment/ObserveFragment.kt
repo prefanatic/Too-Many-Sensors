@@ -238,7 +238,7 @@ class ObserveFragment : Fragment() {
         }
 
         runOnUiThread {
-            mSensorMap.forEach { it ->
+            mSensorMap.forEach {
                 mSensorAdapter?.addSensor(WearableSensor(it.value, it.key))
             }
             mProgressBar.simpleHide()
