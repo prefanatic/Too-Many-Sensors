@@ -154,7 +154,7 @@ class ObserveFragment : Fragment() {
         val sensorNames = savedInstanceState?.getStringArray(STATE_SENSOR_NAMES)
         val sensorTypes = savedInstanceState?.getIntArray(STATE_SENSOR_TYPES)
         if (sensorNames != null && sensorTypes != null && sensorNames.size != 0 && sensorTypes.size != 0) {
-            for (i in 0..sensorTypes.size) {
+            for (i in 0..sensorTypes.size - 1) {
                 mSensorMap.put(sensorTypes[i], sensorNames[i])
                 mSensorAdapter?.addSensor(WearableSensor(sensorNames[i], sensorTypes[i]))
             }
