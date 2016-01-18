@@ -208,18 +208,22 @@ class ObserveFragment : Fragment() {
 
     private fun sendStartRequest(id: String) {
         val selectedSensors = mSensorAdapter?.getSelected() ?: return
+        val wearableSensorList = ArrayList<WearableSensor>()
         val buffer = ByteBuffer.allocate(12 + (4 * selectedSensors.size))
 
         buffer.putInt(SensorManager.SENSOR_DELAY_NORMAL)
         buffer.putInt(0)
         buffer.putInt(selectedSensors.size)
 
-        selectedSensors.forEach { buffer.putInt(it) }
+        selectedSensors.forEach {
+            wearableSensorList.add(WearableSensor(mSensorMap[it]!!, it))
+            buffer.putInt(it)
+        }
+
+        DataManager.get().setSensors(wearableSensorList)
 
         HermesWearable.Message.sendMessage(id, PATH_START, buffer.array())
                 .subscribe { }
-
-        DataManager.get().setSensorIds(mSensorAdapter?.getSelected()!!.toIntArray())
     }
 
     private fun sendStopRequest(id: String) {
