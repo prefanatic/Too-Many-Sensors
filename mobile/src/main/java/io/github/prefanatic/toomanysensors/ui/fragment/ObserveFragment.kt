@@ -137,7 +137,7 @@ class ObserveFragment : Fragment() {
 
         // Populate the node map.
         val nodeNames = savedInstanceState?.getStringArray(STATE_NODE_NAMES)
-        val nodeIds = savedInstanceState?.getStringArrayList(STATE_NODE_ID)
+        val nodeIds = savedInstanceState?.getStringArray(STATE_NODE_ID)
         if (nodeNames != null && nodeIds != null) {
             for (i in 0..nodeNames.size) {
                 mNodeMap.put(nodeNames[i], nodeIds[i])
