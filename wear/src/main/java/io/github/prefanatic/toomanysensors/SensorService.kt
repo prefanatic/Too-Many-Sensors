@@ -93,9 +93,17 @@ class SensorService : Service() {
                 outputStream.writeUTF(it.name)
             }
 
+            // We need to hardcode out the Heart Rate sensor.  It doesn't seem to be included in Sensor.TYPE_ALL
+            val heartRate = manager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
+            Timber.d("Heart rate: %s", heartRate);
+            if (heartRate != null) {
+                outputStream.writeInt(heartRate.type)
+                outputStream.writeUTF(heartRate.name)
+            }
+
             // Tell them we do audio as well.
-            outputStream.writeInt(1001)
-            outputStream.writeUTF("Microphone")
+            //outputStream.writeInt(1001)
+            //outputStream.writeUTF("Microphone")
         }
 
         stopSelf()

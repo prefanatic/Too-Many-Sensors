@@ -18,6 +18,9 @@
     package="io.github.prefanatic.toomanysensors"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.BODY_SENSORS"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
         android:name=".Application"
         android:allowBackup="true"

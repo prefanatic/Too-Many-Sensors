@@ -46,6 +46,7 @@ import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
 import java.io.DataInputStream
+import java.io.EOFException
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.*
@@ -233,8 +234,13 @@ class ObserveFragment : Fragment() {
 
     private fun readSensorList(stream: InputStream) {
         DataInputStream(stream).use {
-            for (i in 1..it.readInt())
-                mSensorMap.put(it.readInt(), it.readUTF())
+            try {
+                for (i in 1..it.readInt()) {
+                    mSensorMap.put(it.readInt(), it.readUTF())
+                }
+            } catch (e: EOFException) {
+                // Do nothing - this is intentional!
+            }
         }
 
         runOnUiThread {

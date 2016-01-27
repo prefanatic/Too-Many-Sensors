@@ -21,6 +21,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceFragment
 import android.support.design.widget.Snackbar
+import edu.uri.egr.hermes.manipulators.FileLog
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.data.EXPORT_REALM
 import io.github.prefanatic.toomanysensors.data.RESET_REALM
@@ -59,24 +60,23 @@ class SettingsFragment: PreferenceFragment() {
     }
 
     private fun exportRealm(): Boolean {
-        val realm = Realm.getInstance(activity)
-        var file: File?
+        var file = File(activity.externalCacheDir, "export.realm")
+        file.delete()
 
-        try {
-            file = File(activity.externalCacheDir, "export.realm")
-            file.delete()
-
-            realm.writeCopyTo(file)
-        } catch (e: IOException) {
-            Timber.e(e, "Failed to export Realm database.")
-            Snackbar.make(view, e.message, Snackbar.LENGTH_INDEFINITE)
-            return false
+        Realm.getInstance(activity).use {
+            try {
+                it.writeCopyTo(file)
+            } catch (e: IOException) {
+                Timber.e(e, "Failed to export Realm database.")
+                Snackbar.make(view, e.message, Snackbar.LENGTH_INDEFINITE)
+                return false
+            }
         }
 
         val intent = Intent(Intent.ACTION_SEND)
         intent.apply {
             setType("plain/text")
-            putExtra(Intent.EXTRA_EMAIL, "dumbplanet424@gmail.com")
+            putExtra(Intent.EXTRA_EMAIL, "joncgoldberg@gmail.com")
             putExtra(Intent.EXTRA_SUBJECT, "TooManySensors - Realm Export")
             putExtra(Intent.EXTRA_TEXT, "Exported on %s".format(SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(System.currentTimeMillis()))))
             putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file))

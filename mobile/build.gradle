@@ -66,6 +66,8 @@ dependencies {
     compile 'io.reactivex:rxjava:1.1.0'
     compile 'io.reactivex:rxandroid:1.1.0'
 
+    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.5.1@aar'
+
     compile('com.github.prefanatic.hermes:hermes-core:0.3.6@aar') {
         transitive = true
     }

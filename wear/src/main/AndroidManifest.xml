@@ -18,6 +18,8 @@
     package="io.github.prefanatic.toomanysensors"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.BODY_SENSORS"/>
+
     <uses-feature android:name="android.hardware.type.watch"/>
     <application
         android:name=".Application"

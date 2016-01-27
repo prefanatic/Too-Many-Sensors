@@ -87,6 +87,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.jakewharton.rxbinding/rxbinding-design/0.3.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.jakewharton.rxbinding/rxbinding-kotlin/0.3.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.jakewharton.rxbinding/rxbinding/0.3.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.tbruyelle.rxpermissions/rxpermissions/0.5.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/io.reactivex/rxandroid/1.1.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/io.realm/realm-android-library/0.87.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
@@ -120,6 +121,7 @@
     <orderEntry type="library" exported="" name="appcompat-v7-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="commons-csv-1.2" level="project" />
+    <orderEntry type="library" exported="" name="rxpermissions-0.5.1" level="project" />
     <orderEntry type="library" exported="" name="rxbinding-kotlin-0.3.0" level="project" />
     <orderEntry type="library" exported="" name="realm-android-library-0.87.1" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-23.1.0" level="project" />

@@ -50,4 +50,6 @@
     <string name="category_positive">Save</string>
     <string name="category_neutral">Cancel</string>
     <string name="category_title">Edit Category</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="export_csv_summary">Exports data as an Excel readable CSV.</string>
 </resources>

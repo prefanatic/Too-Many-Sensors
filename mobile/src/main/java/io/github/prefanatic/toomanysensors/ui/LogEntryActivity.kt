@@ -16,11 +16,17 @@
 
 package io.github.prefanatic.toomanysensors.ui
 
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.widget.TextView
 import com.jakewharton.rxbinding.support.v7.widget.RxToolbar
+import com.tbruyelle.rxpermissions.RxPermissions
+import edu.uri.egr.hermes.manipulators.FileLog
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.data.realm.LogEntry
 import io.github.prefanatic.toomanysensors.extension.bindView
@@ -58,10 +64,16 @@ class LogEntryActivity : AppCompatActivity() {
                         dialog.show(fragmentManager, "entryEdit")
                     }
                 }
-                R.id.action_export -> {
-                }
             }
         }
+
+        val permissionTrigger = RxToolbar.itemClicks(toolbar)
+                .filter { it.itemId == R.id.action_export }
+
+
+        RxPermissions.getInstance(this)
+                .request(permissionTrigger, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe { exportAsCsv() }
 
         val timeStamp = intent.getLongExtra("timeStamp", -1L)
         val length = intent.getLongExtra("length", -1L)
@@ -85,16 +97,64 @@ class LogEntryActivity : AppCompatActivity() {
         }
     }
 
+    private fun getDateCollected() = SimpleDateFormat("h:mm a MM/dd/yy").format(Date((logEntry as LogEntry).dateCollected))
+
     private fun populateInformation() {
-        val dateCollected = SimpleDateFormat("h:mm a MM/dd/yy").format(Date((logEntry as LogEntry).dateCollected))
         val cal = Calendar.getInstance()
         cal.timeInMillis = (logEntry as LogEntry).lengthOfCollection
 
         val lengthCollected = SimpleDateFormat("HH:mm:ss").format(cal.time)
 
-        dateOfCollectionText.text = "Recorded at %s".format(dateCollected)
+        dateOfCollectionText.text = "Recorded at %s".format(getDateCollected())
         lengthOfCollectionText.text = "Duration: %s".format(lengthCollected)
         toolbar.title = (logEntry as LogEntry).name
+    }
+
+    private fun exportAsCsv() {
+        if (logEntry == null) return
+
+        val title = "${logEntry?.name} - ${getDateCollected().replace("/", ".").replace(":", ".")}"
+        val uriList = ArrayList<Uri>()
+
+        // Open up a .csv to export generic data to.
+        val export = FileLog("$title - overview.csv")
+        export.apply {
+            setHeaders("Name", "Category", "Sensors Collected", "Length of Collection (ms)", "Notes")
+            write(logEntry?.name, logEntry?.category, logEntry?.data?.joinToString { it.sensorName }, logEntry?.lengthOfCollection, logEntry?.notes)
+
+            uriList.add(Uri.fromFile(file))
+        }
+
+        // Loop through our LogData sources and write individualized files for those.
+        logEntry?.data?.forEach {
+            val entry = FileLog("$title - ${it.sensorName}.csv")
+            entry.setHeaders("Timestamp (ms)", *(0..it.entries[0].values.size - 1).map { "Channel ${it.toString()}" }.toTypedArray())
+
+            // Loop through our entries and add them to the file.
+            for (value in it.entries) {
+                entry.writeSpecific(0, value.timeStamp)
+
+                value.values.forEachIndexed { i, wrapper ->
+                    entry.writeSpecific(i + 1, wrapper.value)
+                }
+
+                entry.flush()
+            }
+
+            uriList.add(Uri.fromFile(entry.file))
+        }
+
+        // Push this though an intent!
+        val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
+        intent.apply {
+            setType("plain/text")
+            putExtra(Intent.EXTRA_EMAIL, "joncgoldberg@gmail.com")
+            putExtra(Intent.EXTRA_SUBJECT, "TooManySensors - CSV Export")
+            putExtra(Intent.EXTRA_TEXT, "Exported on %s".format(SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(System.currentTimeMillis()))))
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
+        }
+
+        startActivity(Intent.createChooser(intent, "Export CSV"))
     }
 
     override fun onBackPressed() {
