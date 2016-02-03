@@ -37,6 +37,7 @@ import java.nio.ByteBuffer
 class SensorService : Service() {
     val mSubscriptions = CompositeSubscription()
     var mOutputStream: OutputStream? = null
+    lateinit var sourceNodeId: String
 
     private fun cancelNotification() {
         NotificationManagerCompat.from(this).cancel(100);
@@ -59,7 +60,7 @@ class SensorService : Service() {
 
         } else {
             val subscription = Hermes.Sensor.observeSensor(sensor, samplingRate, maximumReport)
-                    .subscribe {
+                    .subscribe({
                         val buffer = ByteBuffer.allocate(BUFFER_SIZE)
 
                         buffer.putInt(sensor)
@@ -74,7 +75,12 @@ class SensorService : Service() {
                             Timber.e(e, "Failed to send sensor data.")
                             // We probably don't want to stop self here, cause other sensors still may be workin fine.
                         }
-                    }
+                    }, { e ->
+                        Timber.e(e, "Failed to initialize sensor.")
+
+                        // Notify the listening device about this sadness.
+                        HermesWearable.Message.sendMessage(sourceNodeId, PATH_ERROR, e.message?.toByteArray()).subscribe()
+                    })
 
             mSubscriptions.add(subscription)
         }
@@ -111,6 +117,7 @@ class SensorService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val messageEvent = intent?.getParcelableExtra<Parcelable>(Hermes.EXTRA_OBJECT) as MessageEvent // wtf???
+        sourceNodeId = messageEvent.sourceNodeId
 
         when (messageEvent.path) {
             PATH_START -> {

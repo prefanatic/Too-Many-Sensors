@@ -24,6 +24,8 @@ val PATH_TRANSFER_SENSOR_LIST = "teletremor/transfer/sensor/list"
 
 val PATH_REQUEST_SENSORS = "teletremor/request/sensors"
 
+val PATH_ERROR = "teletremor/error"
+
 val BUFFER_SIZE = 60
 
 val STATE_ACTIVE = "state.active"
