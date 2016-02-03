@@ -25,5 +25,5 @@ object  SensorDataBus {
     private val subject = SerializedSubject<SensorData, SensorData>(PublishSubject.create())
 
     public fun post(data: SensorData) = subject.onNext(data)
-    public fun asObservable(): Observable<SensorData> = subject.asObservable()
+    public fun asObservable(): Observable<SensorData> = subject.asObservable().onBackpressureDrop()
 }
