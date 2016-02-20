@@ -35,7 +35,7 @@ class SensorAdapter : RecyclerView.Adapter<SensorAdapter.ViewHolder>() {
     public fun getSelected(): List<Int> {
         val filtered = enabledMap.filter { it.value }
 
-        return filtered.keys.toArrayList()
+        return filtered.keys.toList()
     }
 
     public fun setSelected(selected: List<Int>) {
@@ -63,7 +63,7 @@ class SensorAdapter : RecyclerView.Adapter<SensorAdapter.ViewHolder>() {
         val sensor = sensorList[position]
         val enabled = enabledMap[sensor.type]
 
-        holder?.checkBox?.isChecked = enabled
+        holder?.checkBox?.isChecked = enabled!!
         holder?.checkBox?.text = sensor.name
         holder?.checkBox?.tag = sensor.type
     }

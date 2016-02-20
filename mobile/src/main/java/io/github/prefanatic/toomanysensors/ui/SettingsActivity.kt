@@ -27,7 +27,7 @@ public class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
 
-        with(supportActionBar) {
+        with(supportActionBar!!) {
             setHomeAsUpIndicator(R.drawable.ic_arrow_back_24dp)
             setDisplayHomeAsUpEnabled(true)
         }

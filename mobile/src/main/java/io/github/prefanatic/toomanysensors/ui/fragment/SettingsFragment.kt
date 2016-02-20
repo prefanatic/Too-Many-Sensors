@@ -68,14 +68,14 @@ class SettingsFragment: PreferenceFragment() {
                 it.writeCopyTo(file)
             } catch (e: IOException) {
                 Timber.e(e, "Failed to export Realm database.")
-                Snackbar.make(view, e.message, Snackbar.LENGTH_INDEFINITE)
+                Snackbar.make(view, e.message as CharSequence, Snackbar.LENGTH_INDEFINITE)
                 return false
             }
         }
 
         val intent = Intent(Intent.ACTION_SEND)
         intent.apply {
-            setType("plain/text")
+            type = "plain/text"
             putExtra(Intent.EXTRA_EMAIL, "joncgoldberg@gmail.com")
             putExtra(Intent.EXTRA_SUBJECT, "TooManySensors - Realm Export")
             putExtra(Intent.EXTRA_TEXT, "Exported on %s".format(SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(System.currentTimeMillis()))))

@@ -46,7 +46,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         setSupportActionBar(toolbar)
         setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark))
 
-        with (supportActionBar) {
+        with (supportActionBar!!) {
             setHomeAsUpIndicator(R.drawable.ic_menu_24dp)
             setDisplayHomeAsUpEnabled(true)
         }

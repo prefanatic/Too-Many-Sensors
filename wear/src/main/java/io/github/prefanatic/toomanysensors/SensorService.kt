@@ -47,6 +47,7 @@ class SensorService : Service() {
         val builder = NotificationCompat.Builder(this)
 
         builder.setContentTitle("Too Many Sensors")
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText("Observing sensor data")
                 .setOngoing(true)
 

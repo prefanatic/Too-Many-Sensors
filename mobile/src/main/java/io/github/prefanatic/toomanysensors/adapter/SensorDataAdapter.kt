@@ -94,8 +94,8 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
 
         if (holder?.name?.text!!.equals(data.name) && holder?.chart?.data != null) {
             holder?.chart?.apply {
-                axisLeft?.axisMaxValue = maximumValueMap[position]
-                axisLeft?.axisMinValue = minimumValueMap[position]
+                axisLeft?.axisMaxValue = maximumValueMap[position]!!
+                axisLeft?.axisMinValue = minimumValueMap[position]!!
                 notifyDataSetChanged()
                 invalidate()
             }

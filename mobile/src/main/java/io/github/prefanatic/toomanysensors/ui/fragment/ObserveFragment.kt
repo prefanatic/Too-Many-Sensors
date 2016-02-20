@@ -161,9 +161,9 @@ class ObserveFragment : Fragment() {
         }
 
         // Populate the selected sensors.
-        val selectedSensors = savedInstanceState?.getIntegerArrayList(STATE_SENSOR_SELECTED)
+        val selectedSensors = savedInstanceState?.getIntArray(STATE_SENSOR_SELECTED)
         if (selectedSensors != null)
-            mSensorAdapter?.setSelected(selectedSensors)
+            mSensorAdapter?.setSelected(selectedSensors.toList())
 
         super.onActivityCreated(savedInstanceState)
     }
@@ -181,7 +181,7 @@ class ObserveFragment : Fragment() {
             putStringArray(STATE_SENSOR_NAMES, mSensorMap.values.toTypedArray())
 
             // Save the selected sensor.
-            putIntegerArrayList(STATE_SENSOR_SELECTED, mSensorAdapter?.getSelected()?.toArrayList())
+            putIntArray(STATE_SENSOR_SELECTED, mSensorAdapter?.getSelected()?.toIntArray())
 
             // Save the selected node
             putInt(STATE_NODE_SELECTED, mSelectedNode)
