@@ -18,3 +18,5 @@ package io.github.prefanatic.toomanysensors.data
 
 public const val EXPORT_REALM = "pref_export_realm"
 public const val RESET_REALM = "pref_reset_realm"
+
+public const val LIVE_GRAPH_ENABLED = "pref_show_live_graph"

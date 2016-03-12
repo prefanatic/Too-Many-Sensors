@@ -29,10 +29,10 @@
         android:summary="@string/maximum_report_rate_summary"/>
 
     <CheckBoxPreference
-        android:key="pref_logging"
-        android:title="@string/logging"
-        android:summaryOn="@string/logging_summary_on"
-        android:summaryOff="@string/logging_summary_off"/>
+        android:key="pref_show_live_graph"
+        android:title="@string/show_live_graph"
+        android:summary="@string/show_live_graph_summary"
+        android:defaultValue="true"/>
 
     <PreferenceCategory
         android:title="@string/debug_category">

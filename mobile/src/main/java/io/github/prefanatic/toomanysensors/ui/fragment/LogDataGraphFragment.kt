@@ -21,18 +21,25 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import io.github.prefanatic.toomanysensors.R
+import io.github.prefanatic.toomanysensors.data.realm.LogData
 import io.github.prefanatic.toomanysensors.extension.bindView
+import io.github.prefanatic.toomanysensors.extension.simpleHide
+import io.github.prefanatic.toomanysensors.extension.simpleShow
 import io.github.prefanatic.toomanysensors.ui.LogEntryActivity
 import java.util.*
 
 class LogDataGraphFragment : Fragment() {
     val chart by bindView<LineChart>(R.id.chart)
+    val loadButton by bindView<Button>(R.id.load_button)
+    val warningContainer by bindView<View>(R.id.warning_container)
 
+    lateinit var colors: IntArray
 
     companion object {
         public fun newInstance(sensor: Int): LogDataGraphFragment {
@@ -55,7 +62,7 @@ class LogDataGraphFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Create our array of colors for each channel.
-        val colors = IntArray(5)
+        colors = IntArray(5)
         colors[0] = resources.getColor(R.color.red, activity.theme)
         colors[1] = resources.getColor(R.color.purple, activity.theme)
         colors[2] = resources.getColor(R.color.indigo, activity.theme)
@@ -64,38 +71,53 @@ class LogDataGraphFragment : Fragment() {
 
         val logData = getLogData()
         if (logData != null) {
-            val channels = ArrayList<LineDataSet>()
-            val xValues = ArrayList<String>()
-            val timeStart = logData.entries[0].timeStamp
-
-            // Populate the channels off of the first entry.
-            logData.entries[0].values.forEachIndexed { i, v ->
-                val dataSet = LineDataSet(ArrayList<Entry>(), "Channel $i")
-                dataSet.apply {
-                    color = colors[i]
-
+            if (logData.entries.size > 400) {
+                loadButton.setOnClickListener {
+                    populateGraph(logData)
+                    warningContainer.simpleHide()
+                    chart.simpleShow()
                 }
-                channels.add(dataSet)
-            }
 
-            // Loop through each entry and channel value and populate.
-            logData.entries.forEachIndexed { entryIndex, logValue ->
-                //xValues.add((logValue.timeStamp - timeStart).toString())
-                xValues.add(entryIndex.toString())
-
-                logValue.values.forEachIndexed { i, v ->
-                    channels[i].addEntry(Entry(v.value, entryIndex))
-                }
+                warningContainer.simpleShow()
+            } else {
+                chart.simpleShow()
+                populateGraph(logData)
             }
+        }
+    }
 
-            // Combine the data in to the LineData object and populate the graph!
-            val d = LineData(xValues, channels)
-            chart.apply {
-                data = d
-                setDrawGridBackground(false)
-                setDescription("")
-                isAutoScaleMinMaxEnabled = true
+    private fun populateGraph(logData: LogData) {
+        val channels = ArrayList<LineDataSet>()
+        val xValues = ArrayList<String>()
+        val timeStart = logData.entries[0].timeStamp
+
+        // Populate the channels off of the first entry.
+        logData.entries[0].values.forEachIndexed { i, v ->
+            val dataSet = LineDataSet(ArrayList<Entry>(), "Channel $i")
+            dataSet.apply {
+                color = this@LogDataGraphFragment.colors[i]
+
             }
+            channels.add(dataSet)
+        }
+
+        // Loop through each entry and channel value and populate.
+        logData.entries.forEachIndexed { entryIndex, logValue ->
+            //xValues.add((logValue.timeStamp - timeStart).toString())
+            xValues.add(entryIndex.toString())
+
+            logValue.values.forEachIndexed { i, v ->
+                channels[i].addEntry(Entry(v.value, entryIndex))
+            }
+        }
+
+        // Combine the data in to the LineData object and populate the graph!
+        val d = LineData(xValues, channels)
+        chart.apply {
+            data = d
+            setDrawGridBackground(false)
+            setDescription("")
+            isAutoScaleMinMaxEnabled = true
         }
     }
 

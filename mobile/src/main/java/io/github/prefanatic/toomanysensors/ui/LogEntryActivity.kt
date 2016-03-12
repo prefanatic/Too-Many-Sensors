@@ -20,7 +20,6 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.widget.TextView
@@ -43,6 +42,7 @@ class LogEntryActivity : AppCompatActivity() {
     val dateOfCollectionText by bindView<TextView>(R.id.collection_date)
     val lengthOfCollectionText by bindView<TextView>(R.id.collection_length)
     var logEntry: LogEntry? = null
+    lateinit var realm: Realm;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,22 +79,27 @@ class LogEntryActivity : AppCompatActivity() {
         val length = intent.getLongExtra("length", -1L)
         Timber.d("Looking for %d -- %d", timeStamp, length)
         if (timeStamp != -1L && length != -1L) {
-            Realm.getInstance(this).use {
-                logEntry = it.where(LogEntry::class.java)
-                        .equalTo("dateCollected", timeStamp)
-                        .equalTo("lengthOfCollection", length)
-                        .findFirst() // Should we do this async?
+            realm = Realm.getInstance(this);
 
-                logEntry = it.copyFromRealm(logEntry)
+            logEntry = realm.where(LogEntry::class.java)
+                    .equalTo("dateCollected", timeStamp)
+                    .equalTo("lengthOfCollection", length)
+                    .findFirst() // Should we do this async?
 
-                Timber.d("Loaded log entry: %s", logEntry?.name)
-            }
+            Timber.d("Loaded log entry: %s", logEntry?.name)
+
         }
 
         if (logEntry != null) {
             populateInformation()
             showFragment(R.id.content, ::LogDataListFragment)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        realm.close();
     }
 
     private fun getDateCollected() = SimpleDateFormat("h:mm a MM/dd/yy").format(Date((logEntry as LogEntry).dateCollected))

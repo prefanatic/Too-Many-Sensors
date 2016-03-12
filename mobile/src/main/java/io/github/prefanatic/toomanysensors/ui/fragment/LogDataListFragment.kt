@@ -41,8 +41,12 @@ class LogDataListFragment : Fragment() {
 
         val data = getLogEntry()?.data
         val adapter = LogDataAdapter(data?.subList(0, data.size)!!)
-        recycler.adapter = adapter
         recycler.layoutManager = LinearLayoutManager(activity)
+        recycler.adapter = adapter
+
+        Timber.d("Value of data: %s", data);
+        Timber.d("Value of adapter: %s", adapter)
+        Timber.d("Size of adapter: %d", adapter.itemCount)
 
         adapter.getClickObservable().subscribe {
             Timber.d("Clicked on %s", it.obj.sensorName)

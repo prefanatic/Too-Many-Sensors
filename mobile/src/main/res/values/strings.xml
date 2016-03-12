@@ -52,4 +52,8 @@
     <string name="category_title">Edit Category</string>
     <string name="export_csv">Export CSV</string>
     <string name="export_csv_summary">Exports data as an Excel readable CSV.</string>
+    <string name="data_too_large">This is a large log event, and therefore this data might cause crashes.</string>
+    <string name="i_understand">I Understand</string>
+    <string name="show_live_graph">Show live graph</string>
+    <string name="show_live_graph_summary">Shows a live graph of data collection</string>
 </resources>

@@ -17,6 +17,7 @@
 package io.github.prefanatic.toomanysensors.adapter
 
 import android.content.Context
+import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -28,6 +29,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import io.github.prefanatic.toomanysensors.R
+import io.github.prefanatic.toomanysensors.data.LIVE_GRAPH_ENABLED
 import io.github.prefanatic.toomanysensors.data.dto.SensorData
 import io.github.prefanatic.toomanysensors.data.dto.WearableSensor
 import io.github.prefanatic.toomanysensors.extension.bindView
@@ -39,6 +41,11 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
     private val maximumValueMap = HashMap<Int, Float>()
     private val minimumValueMap = HashMap<Int, Float>()
     private var recyclerView: RecyclerView? = null
+    private val showGraph: Boolean
+
+    init {
+        showGraph = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(LIVE_GRAPH_ENABLED, true)
+    }
 
     public fun setSensors(sensors: List<WearableSensor>) {
         sensorList.clear()
@@ -47,6 +54,8 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
     }
 
     public fun updateSensorData(sensorData: SensorData) {
+        if (!showGraph) return
+
         val sensorInListIndex = getSensorIndex(sensorData)
 
         if (!chartDataMap.containsKey(sensorInListIndex)) {
@@ -123,15 +132,19 @@ class SensorDataAdapter(val context: Context) : RecyclerView.Adapter<SensorDataA
         val chart by bindView<BarChart>(R.id.chart)
 
         constructor(itemView: View?) : super(itemView) {
-            with(chart) {
-                setTouchEnabled(false)
-                isDragEnabled = false
-                setDescription("")
-                setDrawGridBackground(false)
+            if (!showGraph) {
+                chart.visibility = View.GONE
+            } else {
+                with(chart) {
+                    setTouchEnabled(false)
+                    isDragEnabled = false
+                    setDescription("")
+                    setDrawGridBackground(false)
 
-                legend.isEnabled = false
-                xAxis.setDrawGridLines(false)
-                axisRight.isEnabled = false
+                    legend.isEnabled = false
+                    xAxis.setDrawGridLines(false)
+                    axisRight.isEnabled = false
+                }
             }
         }
     }
