@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2015-2016 Cody Goldberg
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +14,7 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -34,12 +32,12 @@
             android:id="@+id/node_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"/>
+            android:padding="16dp" />
 
-        <android.support.v7.widget.RecyclerView
+        <io.github.prefanatic.toomanysensors.ui.view.SensorSelectView
             android:id="@+id/sensor_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
@@ -47,7 +45,7 @@
         android:id="@+id/data_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/error_text"
@@ -56,14 +54,14 @@
         android:layout_gravity="center"
         android:drawableTop="@drawable/ic_warning_24dp"
         android:visibility="gone"
-        tools:text="There is an error."/>
+        tools:text="There is an error." />
 
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:indeterminate="true"/>
+        android:indeterminate="true" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -71,7 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_play_arrow_24dp"/>
+        android:src="@drawable/ic_play_arrow_24dp" />
 
 
 </FrameLayout>

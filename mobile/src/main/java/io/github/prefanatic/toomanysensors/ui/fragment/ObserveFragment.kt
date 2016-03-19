@@ -42,6 +42,7 @@ import io.github.prefanatic.toomanysensors.data.dto.SensorData
 import io.github.prefanatic.toomanysensors.data.dto.WearableSensor
 import io.github.prefanatic.toomanysensors.extension.*
 import io.github.prefanatic.toomanysensors.manager.SensorDataBus
+import io.github.prefanatic.toomanysensors.ui.view.SensorSelectView
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
@@ -55,20 +56,18 @@ class ObserveFragment : Fragment() {
     val mFab by bindView<FloatingActionButton>(R.id.fab)
     val mProgressBar by bindView<ProgressBar>(R.id.progress_bar)
     val mSpinner by bindView<Spinner>(R.id.node_spinner)
-    val mSensorList by bindView<RecyclerView>(R.id.sensor_list)
     val mDataList by bindView<RecyclerView>(R.id.data_list)
-    val mErrorText by bindView<TextView>(R.id.error_text);
+    val mErrorText by bindView<TextView>(R.id.error_text)
+    val mSensorList by bindView<SensorSelectView>(R.id.sensor_list)
 
     val mNodeList = ArrayList<String>()
     val mNodeMap = HashMap<String, String>()
     val mSensorMap = HashMap<Int, String>()
-    val mSelectedSensors = ArrayList<Int>()
     val mLifecycleSubscription = CompositeSubscription()
 
     var mSelectedNode = -1
     var mIsActive = false
     var mSpinnerAdapter: ArrayAdapter<String>? = null
-    var mSensorAdapter: SensorAdapter? = null
     var mDataAdapter: SensorDataAdapter? = null
     var mSensorListSubscription: Subscription? = null
     var mSensorDataSubscription: Subscription? = null
@@ -83,11 +82,6 @@ class ObserveFragment : Fragment() {
         mSpinnerAdapter = ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, mNodeList)
         mSpinnerAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         mSpinner.adapter = mSpinnerAdapter
-
-        mSensorAdapter = SensorAdapter()
-        mSensorAdapter?.setSelected(mSelectedSensors)
-        mSensorList.adapter = mSensorAdapter
-        mSensorList.layoutManager = LinearLayoutManager(activity)
 
         mDataAdapter = SensorDataAdapter(activity)
         mDataList.adapter = mDataAdapter
@@ -156,14 +150,14 @@ class ObserveFragment : Fragment() {
         if (sensorNames != null && sensorTypes != null && sensorNames.size != 0 && sensorTypes.size != 0) {
             for (i in 0..sensorTypes.size - 1) {
                 mSensorMap.put(sensorTypes[i], sensorNames[i])
-                mSensorAdapter?.addSensor(WearableSensor(sensorNames[i], sensorTypes[i]))
+                mSensorList.addSensor(WearableSensor(sensorNames[i], sensorTypes[i]))
             }
         }
 
         // Populate the selected sensors.
         val selectedSensors = savedInstanceState?.getIntArray(STATE_SENSOR_SELECTED)
         if (selectedSensors != null)
-            mSensorAdapter?.setSelected(selectedSensors.toList())
+            mSensorList.setSelected(selectedSensors.toList())
 
         super.onActivityCreated(savedInstanceState)
     }
@@ -181,7 +175,7 @@ class ObserveFragment : Fragment() {
             putStringArray(STATE_SENSOR_NAMES, mSensorMap.values.toTypedArray())
 
             // Save the selected sensor.
-            putIntArray(STATE_SENSOR_SELECTED, mSensorAdapter?.getSelected()?.toIntArray())
+            putIntArray(STATE_SENSOR_SELECTED, mSensorList.getSelected().toIntArray())
 
             // Save the selected node
             putInt(STATE_NODE_SELECTED, mSelectedNode)
@@ -207,7 +201,7 @@ class ObserveFragment : Fragment() {
     private fun getNodeIdFromAdapter(i: Int) = mNodeMap[mNodeList[i]]
 
     private fun sendStartRequest(id: String) {
-        val selectedSensors = mSensorAdapter?.getSelected() ?: return
+        val selectedSensors = mSensorList.getSelected()
         val wearableSensorList = ArrayList<WearableSensor>()
         val buffer = ByteBuffer.allocate(12 + (4 * selectedSensors.size))
 
@@ -244,7 +238,7 @@ class ObserveFragment : Fragment() {
 
         runOnUiThread {
             mSensorMap.forEach {
-                mSensorAdapter?.addSensor(WearableSensor(it.value, it.key))
+                mSensorList.addSensor(WearableSensor(it.value, it.key))
             }
             mProgressBar.simpleHide()
         }
@@ -254,7 +248,7 @@ class ObserveFragment : Fragment() {
 
     private fun askWearableForSensorList(id: String) {
         mSensorMap.clear()
-        mSensorAdapter?.clear()
+        mSensorList.clear()
 
         mSensorListSubscription = HermesWearable.getChannelOpened()
                 .filter { it.channel.path.equals(PATH_TRANSFER_SENSOR_LIST) }
@@ -310,10 +304,10 @@ class ObserveFragment : Fragment() {
     }
 
     private fun updateDataListWithSelectedSensors() {
-        val selectedList = mSensorAdapter?.getSelected()
+        val selectedList = mSensorList.getSelected()
         val produced = ArrayList<WearableSensor>()
 
-        selectedList?.forEach {
+        selectedList.forEach {
             produced.add(WearableSensor(mSensorMap[it]!!, it))
         }
 
