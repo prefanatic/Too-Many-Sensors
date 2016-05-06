@@ -32,6 +32,7 @@ import io.github.prefanatic.toomanysensors.extension.showFragment
 import io.github.prefanatic.toomanysensors.ui.fragment.ObserveFragment
 import io.github.prefanatic.toomanysensors.ui.fragment.RecallFragment
 import io.github.prefanatic.toomanysensors.ui.fragment.SettingsFragment
+import io.github.prefanatic.toomanysensors.ui.fragment.ScheduleFragment
 
 class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     val toolbar by bindView<Toolbar>(R.id.toolbar)
@@ -57,17 +58,18 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
     private fun handleNavigationSwitch(id: Int) {
         currentNavItem = id
-        navView.menu.findItem(id).setChecked(true)
+        navView.menu.findItem(id).isChecked = true
 
         when (id) {
             R.id.observe -> showFragment(R.id.content, ::ObserveFragment)
+            R.id.schedule -> showFragment(R.id.content, ::ScheduleFragment)
             R.id.recall -> showFragment(R.id.content,  ::RecallFragment)
             R.id.settings -> showFragment(R.id.content, ::SettingsFragment)
         }
     }
 
     override fun onNavigationItemSelected(item: MenuItem?): Boolean {
-        item?.setChecked(true)
+        item?.isChecked = true
         drawerLayout.closeDrawer(GravityCompat.START)
 
         handleNavigationSwitch(item!!.itemId)

@@ -56,4 +56,10 @@
     <string name="i_understand">I Understand</string>
     <string name="show_live_graph">Show live graph</string>
     <string name="show_live_graph_summary">Shows a live graph of data collection</string>
+    <string name="nav_schedule">Schedule</string>
+    <string name="no_schedules_found">No schedules have been created.</string>
+    <string name="hint_schedule_name">Schedule Name</string>
+    <string name="hint_schedule_periodicity">Delay (minutes)</string>
+    <string name="hint_schedule_length">Length (seconds)</string>
+    <string name="hint_schedule_randomize">Randomize (percent)</string>
 </resources>

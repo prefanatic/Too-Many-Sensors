@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package io.github.prefanatic.toomanysensors.extension
+package io.github.prefanatic.toomanysensors.data.realm
 
-import android.app.Activity
-import android.os.Build
-import android.support.design.widget.Snackbar
+import io.realm.RealmObject
 
-/*
-public fun Activity.showActivity(activityClass: Class) {
-    val intent = Intent()
-    startActivity(intent, activityClass)
-}*/
+/**
+ * io.github.prefanatic.toomanysensors.data.realm (Cody Goldberg - 4/16/2016)
+ */
+open class RealmLongWrapper(open var value: Long = 0L) : RealmObject() {
 
-fun Activity.setStatusBarColor(color: Int) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        window.statusBarColor = color
-}
-
-fun Activity.showSnackbar(text: String) {
-    Snackbar.make(window.decorView, text, Snackbar.LENGTH_LONG).show()
 }

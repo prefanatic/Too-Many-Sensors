@@ -18,21 +18,19 @@ package io.github.prefanatic.toomanysensors.ui.dialog
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.app.DialogFragment
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.EditText
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.data.realm.Category
 import io.realm.Realm
-import rx.subjects.PublishSubject
-import timber.log.Timber
 
-class CategoryEditDialog : DialogFragment() {
+class CategoryEditDialog : ObservableDialogFragment<Category>() {
     lateinit var categoryEditText: EditText
     private var category: Category? = null
-    public val resultSubject: PublishSubject<Category> = PublishSubject.create()
+
+    override val result: Category?
+        get() = category
 
     companion object {
         public fun newInstance(categoryName: String): CategoryEditDialog {
@@ -68,31 +66,25 @@ class CategoryEditDialog : DialogFragment() {
         }
 
         dialog.setView(view)
-                .setPositiveButton(R.string.category_positive, { dialog, i -> onPositiveClicked() })
-                .setNeutralButton(R.string.category_neutral, { dialog, i -> dismiss() })
+                .setPositiveButton(R.string.category_positive, this)
+                .setNeutralButton(R.string.category_neutral, this)
                 .setTitle(R.string.category_title)
 
         return dialog.create()
     }
 
-    private fun onPositiveClicked() {
-        // TODO: Prevent weird categories (None)
+    override fun onPositive() {
         category?.name = categoryEditText.text.toString()
         Realm.getInstance(activity).use {
             it.executeTransaction {
                 it.copyToRealmOrUpdate(category)
             }
         }
-
-        resultSubject.onNext(category)
-        Timber.d("Wow")
     }
 
-    override fun onDismiss(dialog: DialogInterface?) {
-        Timber.d("Such dismiss")
-        resultSubject.onCompleted()
-        super.onDismiss(dialog)
+    override fun onNeutral() {
     }
 
-    public fun getResultObservable() = resultSubject.asObservable()
+    override fun onNegative() {
+    }
 }

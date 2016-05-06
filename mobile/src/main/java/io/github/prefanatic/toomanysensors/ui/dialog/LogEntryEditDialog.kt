@@ -34,13 +34,14 @@ import rx.subjects.PublishSubject
 import timber.log.Timber
 import java.util.*
 
-class LogEntryEditDialog : DialogFragment() {
+class LogEntryEditDialog : ObservableDialogFragment<LogEntry>() {
     lateinit var name: EditText
     lateinit var category: Spinner
     lateinit var addCategory: ImageButton
     private var categoryData: ArrayList<String> = ArrayList()
     private var logEntry: LogEntry? = null
-    private val subject: PublishSubject<LogEntry> = PublishSubject.create()
+    override val result: LogEntry?
+        get() = logEntry
 
     companion object {
         public fun newInstance(entry: LogEntry): LogEntryEditDialog {
@@ -67,7 +68,7 @@ class LogEntryEditDialog : DialogFragment() {
 
         addCategory.setOnClickListener {
             val editDialog = CategoryEditDialog.newInstance("")
-            editDialog.getResultObservable().subscribe { // We can probably use Kotlin magic here instead of RxJava to do this.
+            editDialog.resultObservable.subscribe { // We can probably use Kotlin magic here instead of RxJava to do this.
                 populateCategorySpinner()
             }
 
@@ -91,14 +92,12 @@ class LogEntryEditDialog : DialogFragment() {
         }
 
         dialog.setView(view)
-                .setPositiveButton(R.string.edit_positive, { dialog, i -> onPositiveClicked() })
-                .setNeutralButton(R.string.edit_neutral, { dialog, i -> dismiss() })
+                .setPositiveButton(R.string.edit_positive, this)
+                .setNeutralButton(R.string.edit_neutral, this)
                 .setTitle(R.string.edit_title)
 
         return dialog.create()
     }
-
-    public fun getResultObservable() = subject.asObservable()
 
     private fun populateCategorySpinner() {
         Realm.getInstance(activity).use {
@@ -113,7 +112,7 @@ class LogEntryEditDialog : DialogFragment() {
         }
     }
 
-    private fun onPositiveClicked() {
+    override fun onPositive() {
         if (logEntry != null) {
             logEntry?.name = name.text.toString()
             logEntry?.category = category.selectedItem as String
@@ -123,13 +122,14 @@ class LogEntryEditDialog : DialogFragment() {
             Realm.getInstance(activity).use {
                 it.executeTransaction { it.copyToRealmOrUpdate(logEntry) }
             }
-
-            subject.onNext(logEntry)
         }
     }
 
-    override fun onDismiss(dialog: DialogInterface?) {
-        subject.onCompleted()
-        super.onDismiss(dialog)
+    override fun onNeutral() {
+
+    }
+
+    override fun onNegative() {
+
     }
 }

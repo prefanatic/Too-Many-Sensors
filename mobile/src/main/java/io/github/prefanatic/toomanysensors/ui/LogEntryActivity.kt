@@ -17,19 +17,22 @@
 package io.github.prefanatic.toomanysensors.ui
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
+import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import com.jakewharton.rxbinding.support.v7.widget.RxToolbar
 import com.tbruyelle.rxpermissions.RxPermissions
-import edu.uri.egr.hermes.manipulators.FileLog
 import io.github.prefanatic.toomanysensors.R
 import io.github.prefanatic.toomanysensors.data.realm.LogEntry
 import io.github.prefanatic.toomanysensors.extension.bindView
 import io.github.prefanatic.toomanysensors.extension.showFragment
+import io.github.prefanatic.toomanysensors.extension.showSnackbar
+import io.github.prefanatic.toomanysensors.service.LogEntryExportService
 import io.github.prefanatic.toomanysensors.ui.dialog.LogEntryEditDialog
 import io.github.prefanatic.toomanysensors.ui.fragment.LogDataListFragment
 import io.realm.Realm
@@ -57,7 +60,7 @@ class LogEntryActivity : AppCompatActivity() {
                 R.id.action_edit -> {
                     if (logEntry != null) {
                         val dialog = LogEntryEditDialog.newInstance(logEntry!!)
-                        dialog.getResultObservable().subscribe {
+                        dialog.resultObservable.subscribe {
                             logEntry = it
                             populateInformation()
                         }
@@ -118,48 +121,34 @@ class LogEntryActivity : AppCompatActivity() {
     private fun exportAsCsv() {
         if (logEntry == null) return
 
-        val title = "${logEntry?.name} - ${getDateCollected().replace("/", ".").replace(":", ".")}"
-        val uriList = ArrayList<Uri>()
+        val progress = ProgressBar(this)
+        progress.setPadding(0, 16, 0, 16)
 
-        // Open up a .csv to export generic data to.
-        val export = FileLog("$title - overview.csv")
-        export.apply {
-            setHeaders("Name", "Category", "Sensors Collected", "Length of Collection (ms)", "Notes")
-            write(logEntry?.name, logEntry?.category, logEntry?.data?.joinToString { it.sensorName }, logEntry?.lengthOfCollection, logEntry?.notes)
+        val builder = AlertDialog.Builder(this)
+                .setTitle("Preparing Export")
+                .setCancelable(false)
+                .setView(progress)
 
-            uriList.add(Uri.fromFile(file))
-        }
+        val dialog = builder.create()
+        dialog.show()
 
-        // Loop through our LogData sources and write individualized files for those.
-        logEntry?.data?.forEach {
-            val entry = FileLog("$title - ${it.sensorName}.csv")
-            entry.setHeaders("Timestamp (ms)", *(0..it.entries[0].values.size - 1).map { "Channel ${it.toString()}" }.toTypedArray())
+        LogEntryExportService.exportEntry(this, (logEntry as LogEntry).dateCollected)
+                .subscribe({
+                    dialog.hide()
 
-            // Loop through our entries and add them to the file.
-            for (value in it.entries) {
-                entry.writeSpecific(0, value.timeStamp)
+                    // Push this though an intent!
+                    val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
+                    intent.apply {
+                        type = "plain/text"
+                        putExtra(Intent.EXTRA_SUBJECT, "TooManySensors - CSV Export")
+                        putExtra(Intent.EXTRA_TEXT, "Exported on %s".format(SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(System.currentTimeMillis()))))
+                        putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(it))
+                    }
 
-                value.values.forEachIndexed { i, wrapper ->
-                    entry.writeSpecific(i + 1, wrapper.value)
-                }
-
-                entry.flush()
-            }
-
-            uriList.add(Uri.fromFile(entry.file))
-        }
-
-        // Push this though an intent!
-        val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
-        intent.apply {
-            setType("plain/text")
-            putExtra(Intent.EXTRA_EMAIL, "joncgoldberg@gmail.com")
-            putExtra(Intent.EXTRA_SUBJECT, "TooManySensors - CSV Export")
-            putExtra(Intent.EXTRA_TEXT, "Exported on %s".format(SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(System.currentTimeMillis()))))
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
-        }
-
-        startActivity(Intent.createChooser(intent, "Export CSV"))
+                    startActivity(Intent.createChooser(intent, "Export CSV"))
+                }, {
+                    showSnackbar(it.message!!)
+                })
     }
 
     override fun onBackPressed() {

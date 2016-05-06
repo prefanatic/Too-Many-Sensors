@@ -28,8 +28,10 @@ public class Application : android.app.Application() {
         super.onCreate()
 
         val realmConfig = RealmConfiguration.Builder(this)
+                .deleteRealmIfMigrationNeeded()
                 .build()
 
+        Realm.setDefaultConfiguration(realmConfig);
         Realm.getInstance(realmConfig).close()
 
         val config = Hermes.Config()

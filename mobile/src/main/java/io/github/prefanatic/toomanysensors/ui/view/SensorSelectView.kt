@@ -19,6 +19,7 @@ package io.github.prefanatic.toomanysensors.ui.view
 import android.content.Context
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.AttributeSet
 import android.widget.FrameLayout
 import io.github.prefanatic.toomanysensors.adapter.SensorAdapter
 import io.github.prefanatic.toomanysensors.data.dto.WearableSensor
@@ -26,9 +27,18 @@ import io.github.prefanatic.toomanysensors.data.dto.WearableSensor
 /**
  * View to encapsulate the sensor list.
  */
-class SensorSelectView(context: Context) : FrameLayout(context) {
+class SensorSelectView : FrameLayout {
     private val recyclerView: RecyclerView
     private val sensorAdapter: SensorAdapter
+
+    constructor(context: Context) : super(context) {
+    }
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+    }
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    }
 
     init {
         recyclerView = RecyclerView(context)
@@ -38,6 +48,8 @@ class SensorSelectView(context: Context) : FrameLayout(context) {
             adapter = sensorAdapter
             layoutManager = LinearLayoutManager(context)
         }
+
+        addView(recyclerView)
     }
 
     public fun addSensor(sensor: WearableSensor) =

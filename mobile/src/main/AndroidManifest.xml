@@ -14,12 +14,11 @@
   ~ limitations under the License.
   -->
 
-<manifest
-    package="io.github.prefanatic.toomanysensors"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.github.prefanatic.toomanysensors">
 
-    <uses-permission android:name="android.permission.BODY_SENSORS"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".Application"
@@ -33,21 +32,25 @@
             android:name=".ui.NavigationActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.LogEntryActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".ui.SettingsActivity"/>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.SettingsActivity" />
 
         <service android:name=".service.WearableReceiverService">
             <intent-filter>
-                <action android:name="hermes.intent.action.WEARABLE_DISPATCH"/>
-                <category android:name="channel.opened"/>
+                <action android:name="hermes.intent.action.WEARABLE_DISPATCH" />
+                <category android:name="channel.opened" />
             </intent-filter>
         </service>
+        <service
+            android:name=".service.LogEntryExportService"
+            android:enabled="true"
+            android:exported="true" />
     </application>
 
 </manifest>

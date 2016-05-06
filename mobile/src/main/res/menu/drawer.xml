@@ -22,6 +22,10 @@
             android:icon="@drawable/ic_visibility_24dp"
             android:title="@string/nav_observe"/>
         <item
+            android:id="@+id/schedule"
+            android:icon="@drawable/ic_autorenew_black_24dp"
+            android:title="@string/nav_schedule"/>
+        <item
             android:id="@+id/recall"
             android:icon="@drawable/ic_replay_24dp"
             android:title="@string/nav_recall"/>

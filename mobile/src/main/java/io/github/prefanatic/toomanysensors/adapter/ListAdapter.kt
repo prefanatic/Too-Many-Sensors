@@ -30,6 +30,11 @@ abstract class ListAdapter<O, T : RecyclerView.ViewHolder>(public val data: Muta
         notifyItemInserted(data.size)
     }
 
+    fun addAll(o: List<O>) {
+        data.addAll(o)
+        notifyDataSetChanged()
+    }
+
     public fun remove(o: O) {
         val i = data.indexOf(o)
         if (i < 0) return
